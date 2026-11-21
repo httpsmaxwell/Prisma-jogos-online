@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" id="meta-theme" content="#faf8f3">
+<link rel="icon" type="image/jpeg" href="../img/icon.jpg">
+<link rel="apple-touch-icon" href="../img/apple-touch-icon.jpg">
+<title>Batalha Naval</title>
+<meta name="description" content="Bora jogar? Encontre e afunde a frota adversária!">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Prisma">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Batalha Naval · Prisma">
+<meta property="og:description" content="Bora jogar? Encontre e afunde a frota adversária!">
+<meta property="og:url" content="https://prisma-io.netlify.app/batalha-naval/index.html">
+<meta property="og:image" content="https://prisma-io.netlify.app/batalha-naval/img/og.jpg">
+<meta property="og:image:secure_url" content="https://prisma-io.netlify.app/batalha-naval/img/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1376">
+<meta property="og:image:height" content="768">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Batalha Naval · Prisma">
+<meta name="twitter:description" content="Bora jogar? Encontre e afunde a frota adversária!">
+<meta name="twitter:image" content="https://prisma-io.netlify.app/batalha-naval/img/og.jpg">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js"></script>
+<style>
+:root{
+  --bg:#faf8f3;--fg:#1f1f1e;--muted:#6b6860;--line:#ded8ca;--card:#fff;
+  --p1:#2563eb;--p2:#dc2626;--dot:#2b2b29;--ac:#1f1f1e;--acf:#faf8f3;
+  --ok:#16a34a;--wa:#15803d;
+  --water:#eaf3fb;--water-hover:#dbeafe;--ship:#334155;--ship-border:#1e293b;
+  --hit:#dc2626;--sunk:#991b1b;--miss:#94a3b8
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#181817;--fg:#f2f0eb;--muted:#9e9a90;--line:#363532;--card:#232321;
+    --p1:#60a5fa;--p2:#f87171;--dot:#e5e2dc;--ac:#f2f0eb;--acf:#181817;
+    --ok:#4ade80;--wa:#22c55e;
+    --water:#172533;--water-hover:#1e3347;--ship:#475569;--ship-border:#64748b;
+    --hit:#ef4444;--sunk:#b91c1c;--miss:#64748b
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#181817;--fg:#f2f0eb;--muted:#9e9a90;--line:#363532;--card:#232321;
+  --p1:#60a5fa;--p2:#f87171;--dot:#e5e2dc;--ac:#f2f0eb;--acf:#181817;
+  --ok:#4ade80;--wa:#22c55e;
+  --water:#172533;--water-hover:#1e3347;--ship:#475569;--ship-border:#64748b;
+  --hit:#ef4444;--sunk:#b91c1c;--miss:#64748b
+}
+:root[data-theme="light"]{color-scheme:light}
+
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100dvh;background:var(--bg);color:var(--fg);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  display:flex;justify-content:center;
+  padding:max(14px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom))
+}
+main{width:100%;max-width:460px;margin:auto 0}
+.hide{display:none!important}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px 20px}
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
+.brand svg{width:26px;height:26px;flex-shrink:0}
+h1{font-size:1.45rem;margin:0;text-align:center;letter-spacing:-.02em}
+.sub{text-align:center;color:var(--muted);font-size:.88rem;margin:4px 0 22px}
+label.fld{display:flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--muted);margin:14px 0 6px}
+.dot-tag{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
+input,select,button{
+  font:inherit;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--fg);min-height:44px;padding:10px 12px
+}
+input,select{width:100%;background:var(--bg)}
+input:focus,select:focus{outline:2px solid var(--p1);border-color:transparent;background:var(--card)}
+button{
+  cursor:pointer;font-weight:600;border:none;background:var(--ac);color:var(--acf);
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity .15s,transform .1s,border-color .15s,color .15s
+}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.full{width:100%;margin-top:18px;font-size:.96rem;min-height:46px}
+button.sec{background:transparent;color:var(--fg);border:1px solid var(--line)}
+button.sec.confirming{border-color:var(--p2);color:var(--p2)}
+button.wa{background:var(--wa);color:#fff}
+button.ghost{background:transparent;border:none;color:var(--muted);padding:4px 2px;min-height:32px;font-size:.86rem;justify-content:flex-start}
+button.ghost:hover{color:var(--fg)}
+button.lk{background:none;border:none;color:var(--muted);font-size:.85rem;width:100%;margin-top:14px;min-height:36px}
+button.lk:hover{color:var(--fg);text-decoration:underline}
+
+.modes{display:grid;gap:10px}
+.mc{
+  display:flex;align-items:center;gap:13px;padding:14px;border-radius:14px;
+  border:1px solid var(--line);background:var(--bg);cursor:pointer;
+  transition:border-color .15s,transform .15s
+}
+.mc:hover{border-color:var(--p1);transform:translateY(-1px)}
+.mc:active{transform:scale(.99)}
+.mi{
+  width:36px;height:36px;border-radius:10px;background:var(--card);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--p1)
+}
+.mi svg{width:19px;height:19px}
+.mc-txt{flex:1;min-width:0}
+.mc strong{display:block;font-size:.95rem;font-weight:600}
+.mc span{display:block;font-size:.8rem;color:var(--muted);margin-top:2px}
+.chev{color:var(--muted);font-size:1.15rem;padding-left:2px}
+
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.setup-title{text-align:left;margin-bottom:16px}
+.seg-lvl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lvl-btn{min-height:40px;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:.86rem;font-weight:600}
+.lvl-btn.active{border-color:var(--p1);background:var(--card);color:var(--p1)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:400px){.r2{grid-template-columns:1fr}}
+
+/* Switch igual ao Entre Pontos */
+.chk{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:11px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-size:.86rem;font-weight:500;cursor:pointer;user-select:none}
+.chk input{position:absolute;opacity:0;width:0;height:0;min-height:0;margin:0;pointer-events:none}
+.sw{position:relative;width:42px;height:24px;border-radius:999px;background:var(--line);flex-shrink:0;transition:background .2s ease}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.22);transition:transform .2s ease}
+.chk input:checked + .sw{background:#22c55e}
+.chk input:checked + .sw::after{transform:translateX(18px)}
+.chk input:focus-visible + .sw{outline:2px solid var(--p1);outline-offset:2px}
+
+.badge{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:.8rem;font-weight:600;color:var(--muted)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pu 1.4s infinite}
+@keyframes pu{50%{opacity:.4;transform:scale(.85)}}
+
+.room{margin:16px 0;padding:16px;border-radius:14px;background:var(--bg);border:1px dashed var(--line);text-align:center;cursor:pointer;transition:border-color .15s,transform .1s}
+.room:hover{border-color:var(--p1)}
+.room:active{transform:scale(.99)}
+.room strong{display:block;font-size:1.3rem;letter-spacing:.07em;font-family:ui-monospace,monospace}
+.room small{display:block;color:var(--muted);font-size:.76rem;margin-top:4px}
+.stack{display:grid;gap:9px;margin-top:14px}
+.hint{margin:14px 0 0;text-align:center;color:var(--muted);font-size:.8rem;line-height:1.45}
+.st{text-align:center;font-size:.84rem;color:var(--muted);min-height:1.3em;margin-top:12px;line-height:1.4}
+
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:6px}
+.top button{min-height:36px;padding:6px 8px;font-size:.86rem}
+.top .g{display:flex;gap:5px}
+.meta{font-size:.82rem;color:var(--muted);font-weight:600;text-align:center;flex:1}
+.meta .tm{display:inline-block;margin-left:5px;padding:2px 7px;border-radius:6px;background:var(--card);border:1px solid var(--line);font-variant-numeric:tabular-nums;transition:color .2s,border-color .2s}
+.meta .tm.warn{color:var(--p2);border-color:var(--p2);font-weight:700}
+
+/* Barra de cronômetro fixa e estável */
+.timer-track{height:3px;width:100%;background:var(--line);border-radius:999px;overflow:hidden;margin-bottom:10px}
+.timer-fill{height:100%;width:100%;background:var(--p1);transform-origin:left;transition:transform .2s linear,background .2s}
+.timer-fill.warn{background:var(--p2)}
+
+.fleet-bar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.fbox{padding:10px 12px;border-radius:12px;background:var(--card);border:2px solid var(--line);text-align:center;transition:border-color .15s}
+.fbox span{display:block;font-size:.82rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fbox b{display:block;font-size:1.35rem;line-height:1.2;margin-top:2px}
+.fbox.on{border-color:currentColor}
+.fbox.p1{color:var(--p1)}.fbox.p2{color:var(--p2)}
+
+#msg{text-align:center;height:1.5em;line-height:1.5em;margin:6px 0 8px;font-weight:700;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.stage-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px}
+.stage-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:.84rem;min-height:24px}
+.stage-head b{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted);flex-shrink:0}
+.pill.attack{border-color:var(--p1);color:var(--p1)}
+.pill.defend{border-color:var(--p2);color:var(--p2)}
+
+.board-shell{position:relative;padding-left:18px;padding-top:18px}
+.cols-axis{position:absolute;top:0;left:18px;right:0;height:16px;display:grid;grid-template-columns:repeat(10,1fr);font-size:.68rem;color:var(--muted);text-align:center;align-items:center;font-weight:600;user-select:none}
+.rows-axis{position:absolute;top:18px;left:0;bottom:0;width:15px;display:grid;grid-template-rows:repeat(10,1fr);font-size:.68rem;color:var(--muted);text-align:center;align-items:center;font-weight:600;user-select:none}
+
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;aspect-ratio:1;width:100%;touch-action:manipulation}
+.cell{
+  border:1px solid var(--line);background:var(--water);border-radius:6px;
+  padding:0;min-width:0;min-height:0;aspect-ratio:1;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .12s,border-color .12s
+}
+button.cell:not(:disabled):hover{background:var(--water-hover);border-color:var(--p1)}
+.cell.ship{background:var(--ship);border-color:var(--ship-border)}
+.cell.preview-ok{background:rgba(22,163,74,.28);border-color:var(--ok)}
+.cell.preview-bad{background:rgba(220,38,38,.25);border-color:var(--p2)}
+.cell.hit{background:var(--hit);border-color:var(--hit);color:#fff;font-weight:900;font-size:clamp(12px,3.6vw,18px);animation:cellHit .32s ease-out}
+.cell.sunk{background:var(--sunk);border-color:var(--sunk);color:#fff;font-weight:900;font-size:clamp(12px,3.6vw,18px);animation:cellSunk .48s ease}
+.cell.miss::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--miss);opacity:.78;animation:cellMiss .28s ease-out}
+.cell.last-shot{box-shadow:inset 0 0 0 2px var(--fg)}
+.cell:disabled{cursor:default}
+
+/* Animações estáveis nas células */
+@keyframes cellHit{0%{transform:scale(.75)}100%{transform:scale(1)}}
+@keyframes cellSunk{0%{transform:scale(1)}30%{transform:scale(1.16);filter:brightness(1.25)}100%{transform:scale(1);filter:brightness(1)}}
+@keyframes cellMiss{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:.78}}
+
+/* Tremor apenas quando um navio afunda */
+.shake-sunk{animation:shakeSunk .52s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shakeSunk{
+  10%,90%{transform:translate3d(-2px,1px,0)}
+  20%,80%{transform:translate3d(4px,-2px,0)}
+  30%,50%,70%{transform:translate3d(-5px,2px,0)}
+  40%,60%{transform:translate3d(5px,-1px,0)}
+}
+
+.stage-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;min-height:36px}
+.shot-log{
+  flex:1;min-width:0;margin:0;text-align:left;color:var(--muted);font-size:.8rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.stage-foot button{min-height:36px;padding:6px 10px;font-size:.82rem;flex-shrink:0}
+
+.ship-list{display:grid;gap:6px;margin:12px 0}
+.ship-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 11px;border-radius:10px;background:var(--bg);border:1px solid var(--line);font-size:.82rem;cursor:pointer}
+.ship-item.active{border-color:var(--p1);background:var(--card)}
+.ship-item.placed{opacity:.65;cursor:pointer}
+.ship-pips{display:flex;gap:3px}
+.ship-pips i{width:10px;height:10px;border-radius:3px;background:var(--ship);display:block}
+.ship-item.placed .ship-pips i{background:var(--ok)}
+
+.r2-ctrl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.r2-ctrl button{min-height:40px;font-size:.84rem}
+
+.end{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+
+.modal-bg{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}
+.modal-bg.show{display:flex}
+.modal{width:min(400px,100%);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 20px}
+.modal h2{margin:0 0 8px;font-size:1.2rem}
+.modal p{margin:0 0 16px;color:var(--muted);font-size:.9rem;line-height:1.45}
+.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+section:not(.hide){animation:in .26s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:15}
+.foot{text-align:center;color:var(--muted);font-size:.76rem;margin:16px 0 0;opacity:.75}
+.hub-back{display:inline-flex;align-items:center;gap:4px;min-height:32px;margin:0 0 8px;color:var(--muted);font-size:.86rem;font-weight:600;text-decoration:none}.hub-back:hover{color:var(--fg)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <!-- TELA 1: Menu inicial -->
+  <section id="screen-home" class="card">
+    <a class="hub-back" href="../index.html">← Prisma</a>
+    <div class="brand">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <line x1="7" y1="7" x2="25" y2="7" stroke="var(--p1)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="25" y1="7" x2="25" y2="25" stroke="var(--p2)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="7" y1="7" x2="7" y2="25" stroke="var(--p1)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="7" y1="25" x2="25" y2="25" stroke="var(--line)" stroke-width="2.5" stroke-dasharray="3 4" stroke-linecap="round"/>
+        <circle cx="7" cy="7" r="3.2" fill="var(--dot)"/>
+        <circle cx="25" cy="7" r="3.2" fill="var(--dot)"/>
+        <circle cx="7" cy="25" r="3.2" fill="var(--dot)"/>
+        <circle cx="25" cy="25" r="3.2" fill="var(--dot)"/>
+      </svg>
+      <h1>Batalha Naval</h1>
+    </div>
+    <p class="sub">Encontre e afunde toda a frota adversária</p>
+
+    <div class="modes">
+      <div class="mc" data-mode="on" role="button" tabindex="0">
+        <div class="mi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="mc-txt">
+          <strong>Online</strong>
+          <span>Com amigo via link ou código</span>
+        </div>
+        <span class="chev" aria-hidden="true">›</span>
+      </div>
+
+      <div class="mc" data-mode="ai" role="button" tabindex="0">
+        <div class="mi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 2v6"/><circle cx="12" cy="2" r="1"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg>
+        </div>
+        <div class="mc-txt">
+          <strong>Contra o computador</strong>
+          <span>Fácil, médio ou difícil</span>
+        </div>
+        <span class="chev" aria-hidden="true">›</span>
+      </div>
+
+      <div class="mc" data-mode="local" role="button" tabindex="0">
+        <div class="mi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="mc-txt">
+          <strong>2 jogadores</strong>
+          <span>Localmente no mesmo aparelho</span>
+        </div>
+        <span class="chev" aria-hidden="true">›</span>
+      </div>
+    </div>
+
+    <button id="open-manual-join" class="lk" type="button">Tenho um código de sala</button>
+  </section>
+
+  <!-- TELA 2: Configuração -->
+  <section id="screen-setup" class="card hide">
+    <div class="nav-row">
+      <button id="back-to-modes" class="ghost" type="button">← Voltar</button>
+    </div>
+    <h1 id="setup-title" class="setup-title">Partida Online</h1>
+
+    <div id="names-grid">
+      <div>
+        <label class="fld" for="n1" id="n1-label"><span class="dot-tag" style="background:var(--p1)"></span>Seu nome</label>
+        <input id="n1" placeholder="Ex: Max" maxlength="14">
+      </div>
+      <div id="n2-wrap" class="hide">
+        <label class="fld" for="n2"><span class="dot-tag" style="background:var(--p2)"></span>Jogador 2</label>
+        <input id="n2" placeholder="Ex: Jogador 2" maxlength="14">
+      </div>
+    </div>
+
+    <div id="lvl-wrap" class="hide">
+      <label class="fld">Dificuldade</label>
+      <input type="hidden" id="lvl" value="hard">
+      <div class="seg-lvl" role="group" aria-label="Dificuldade do computador">
+        <button type="button" class="lvl-btn" data-lvl="easy">Fácil</button>
+        <button type="button" class="lvl-btn" data-lvl="mid">Médio</button>
+        <button type="button" class="lvl-btn active" data-lvl="hard">Difícil</button>
+      </div>
+    </div>
+
+    <label class="chk" for="turn-timer-chk">
+      <span>⏱ Limite de 30s por jogada</span>
+      <input type="checkbox" id="turn-timer-chk">
+      <span class="sw" aria-hidden="true"></span>
+    </label>
+
+    <button id="start-btn" class="full" type="button">Criar sala</button>
+  </section>
+
+  <!-- TELA 3: Posicionamento da frota -->
+  <section id="screen-place" class="card hide">
+    <div class="nav-row">
+      <button id="place-back" class="ghost" type="button">← Voltar</button>
+      <span class="badge" id="place-badge">Frota</span>
+    </div>
+    <h1 id="place-title">Posicione sua frota</h1>
+    <p class="sub" id="place-sub" style="margin-bottom:14px">Escolha um navio e toque no mapa para posicionar</p>
+
+    <div class="board-shell">
+      <div class="cols-axis" id="place-cols"></div>
+      <div class="rows-axis" id="place-rows"></div>
+      <div class="grid" id="place-grid"></div>
+    </div>
+
+    <div class="ship-list" id="ship-list"></div>
+
+    <div class="r2-ctrl">
+      <button type="button" class="sec" id="rotate-btn">↻ Orientação: Horizontal</button>
+      <button type="button" class="sec" id="auto-place-btn">⚡ Aleatório</button>
+    </div>
+
+    <button type="button" class="full" id="confirm-fleet-btn" disabled>Confirmar frota</button>
+  </section>
+
+  <!-- TELA 4: Lobby online -->
+  <section id="screen-lobby" class="card hide">
+    <div class="nav-row">
+      <button id="cancel-lobby" class="ghost" type="button">← Cancelar</button>
+      <span class="badge"><span class="pulse"></span><span id="lobby-status">Registrando sala...</span></span>
+    </div>
+    <h1 style="margin-top:8px">Aguardando amigo</h1>
+    <p class="sub" id="lobby-info" style="margin-bottom:14px"></p>
+
+    <div class="room" id="copy-room-box" role="button" tabindex="0">
+      <strong id="lobby-code">...</strong>
+      <small id="room-label">Toque para copiar o código</small>
+    </div>
+
+    <div class="stack">
+      <button id="share-wa" class="wa" type="button">Enviar no WhatsApp</button>
+      <button id="copy-link" class="sec" type="button">Copiar link</button>
+    </div>
+    <p class="hint">Assim que seu amigo entrar, cada um posiciona sua frota antes do combate.</p>
+  </section>
+
+  <!-- TELA 5: Entrar via convite ou código -->
+  <section id="screen-invite" class="card hide">
+    <div class="nav-row">
+      <button id="cancel-invite" class="ghost" type="button">← Voltar</button>
+      <span class="badge hide" id="invite-badge"></span>
+    </div>
+    <h1 style="margin-top:8px;margin-bottom:14px">Entrar na sala</h1>
+
+    <div id="invite-code-wrap" class="hide">
+      <label class="fld" for="invite-code">Código da sala</label>
+      <input id="invite-code" placeholder="naval-xxxxx" maxlength="24">
+    </div>
+    <label class="fld" for="invite-name">Seu nome</label>
+    <input id="invite-name" placeholder="Como quer ser chamado(a)?" maxlength="14">
+
+    <button id="join-btn" class="full" type="button">Entrar</button>
+    <div class="st" id="invite-status"></div>
+  </section>
+
+  <!-- TELA 6: Batalha (Foco único por turno) -->
+  <section id="screen-game" class="hide">
+    <div class="top">
+      <button id="exit-game" class="sec" type="button">← Sair</button>
+      <span class="meta" id="game-meta"></span>
+      <div class="g">
+        <button id="snd-btn" class="sec" type="button" aria-label="Alternar som">🔊</button>
+        <button id="theme-top-btn" class="sec" type="button" aria-label="Alternar tema">🌓</button>
+      </div>
+    </div>
+
+    <div class="timer-track hide" id="timer-track">
+      <div class="timer-fill" id="timer-fill"></div>
+    </div>
+
+    <div class="fleet-bar">
+      <div class="fbox p1" id="fb1">
+        <span id="fn1">Jogador 1</span>
+        <b id="fv1">5 navios</b>
+      </div>
+      <div class="fbox p2" id="fb2">
+        <span id="fn2">Jogador 2</span>
+        <b id="fv2">5 navios</b>
+      </div>
+    </div>
+
+    <div id="msg" aria-live="polite"></div>
+
+    <div class="stage-card" id="stage-card">
+      <div class="stage-head">
+        <b id="stage-title">Mapa Inimigo</b>
+        <span class="pill attack" id="stage-pill">Modo Ataque</span>
+      </div>
+
+      <div class="board-shell">
+        <div class="cols-axis" id="game-cols"></div>
+        <div class="rows-axis" id="game-rows"></div>
+        <div class="grid" id="game-grid"></div>
+      </div>
+
+      <div class="stage-foot">
+        <p class="shot-log" id="last-shot-info">Aguardando primeiro disparo</p>
+        <button type="button" class="sec" id="peek-btn">👁 Ver meu mapa</button>
+      </div>
+    </div>
+
+    <div class="end hide" id="end-bar">
+      <button id="rematch-btn" type="button">Jogar novamente</button>
+      <button id="back-home-btn" class="sec" type="button">Menu inicial</button>
+    </div>
+  </section>
+
+  <canvas id="fx"></canvas>
+  <p class="foot">Developed by Max :)</p>
+</main>
+
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal-box"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const ROWS = ['A','B','C','D','E','F','G','H','I','J'];
+const N = 10;
+const FLEET = [
+  { id: 0, name: 'Porta-aviões', size: 5 },
+  { id: 1, name: 'Encouraçado', size: 4 },
+  { id: 2, name: 'Cruzador', size: 3 },
+  { id: 3, name: 'Submarino', size: 3 },
+  { id: 4, name: 'Destroyer', size: 2 }
+];
+
+const PEER_CONFIG = {
+  debug: 0,
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun.cloudflare.com:3478' },
+      {
+        urls: [
+          'turn:openrelay.metered.ca:80',
+          'turn:openrelay.metered.ca:443',
+          'turn:openrelay.metered.ca:443?transport=tcp',
+          'turns:openrelay.metered.ca:443?transport=tcp'
+        ],
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
+    ],
+    iceCandidatePoolSize: 4
+  }
+};
+
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+
+let sound = store.get('bn_sound') !== '0';
+let actx = null;
+let mode = 'on'; // 'on' | 'ai' | 'local'
+let level = 'hard';
+let names = ['Jogador 1', 'Jogador 2'];
+let turn = 0; // 0 = P1/Host, 1 = P2/Guest/AI
+let winner = -1;
+let over = false;
+let exitConfirmTimer = null;
+
+// Timer de turno
+let turnLimit = 0; // 0 ou 30
+let turnDeadline = 0;
+let lastWarnSec = -1;
+let timerPaused = false;
+
+// Estado das frotas
+let ownGrid = [null, null];
+let ownShips = [[], []];
+let incomingShots = [null, null];
+let enemyViewShots = [null, null];
+let enemySunk = 0;
+let lastShotText = 'Aguardando primeiro disparo';
+let lastHighlight = null;
+
+// Posicionamento
+let setupPlayer = 0;
+let selectedShip = 0;
+let vertical = false;
+let hoverCell = null;
+let fleetReady = [false, false];
+
+// Foco único
+let activeBoardView = 'enemy';
+let manualPeek = false;
+
+// IA
+let aiTimer = null;
+let aiQueue = [];
+
+// Online P2P
+let peer = null;
+let conn = null;
+let me = -1;
+let code = '';
+let peerConnected = false;
+let openTimer = null;
+let connTimer = null;
+let awaitingFire = false;
+let wakeLock = null;
+
+// Motor de partículas & efeitos em Canvas (#fx)
+const fxc = $('fx');
+const fctx = fxc.getContext('2d');
+let particles = [];
+let shockwaves = [];
+let confettiPieces = [];
+let fxRaf = 0;
+
+function resizeFx() {
+  const d = devicePixelRatio || 1;
+  fxc.width = innerWidth * d;
+  fxc.height = innerHeight * d;
+  fctx.setTransform(d, 0, 0, d, 0, 0);
+}
+window.addEventListener('resize', resizeFx);
+resizeFx();
+
+function clearFx() {
+  particles = [];
+  shockwaves = [];
+  confettiPieces = [];
+  fctx.clearRect(0, 0, innerWidth, innerHeight);
+}
+
+function kickFx() {
+  if (!fxRaf) fxRaf = requestAnimationFrame(tickFx);
+}
+
+function cellScreenCenter(r, c) {
+  const grid = $('game-grid');
+  if (!grid) return null;
+  const idx = r * N + c;
+  const cell = grid.children[idx];
+  if (!cell) return null;
+  const rect = cell.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, size: rect.width };
+}
+
+function triggerSunkShake() {
+  const card = $('stage-card');
+  if (!card) return;
+  card.classList.remove('shake-sunk');
+  void card.offsetWidth;
+  card.classList.add('shake-sunk');
+}
+
+function spawnImpactFx(kind, r, c, sunkCells = null) {
+  requestAnimationFrame(() => {
+    const pt = cellScreenCenter(r, c);
+    if (!pt) return;
+
+    if (kind === 'miss') {
+      shockwaves.push({ x: pt.x, y: pt.y, rad: 4, maxRad: pt.size * 1.15, alpha: 0.75, color: '#60a5fa', width: 2.2 });
+      shockwaves.push({ x: pt.x, y: pt.y, rad: 2, maxRad: pt.size * 0.75, alpha: 0.55, color: '#93c5fd', width: 1.5 });
+      for (let i = 0; i < 10; i++) {
+        const ang = (Math.PI * 2 * i) / 10 + Math.random() * 0.3;
+        const spd = 1.1 + Math.random() * 1.8;
+        particles.push({
+          x: pt.x, y: pt.y,
+          vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 0.8,
+          g: 0.08, life: 1, decay: 0.032,
+          r: 2 + Math.random() * 1.5, color: '#60a5fa', shape: 'dot'
+        });
+      }
+      kickFx();
+      return;
+    }
+
+    if (kind === 'hit') {
+      shockwaves.push({ x: pt.x, y: pt.y, rad: 5, maxRad: pt.size * 1.45, alpha: 0.85, color: '#ef4444', width: 2.5 });
+      const fireColors = ['#ef4444', '#f97316', '#facc15', '#fb923c'];
+      for (let i = 0; i < 20; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 1.5 + Math.random() * 3.5;
+        particles.push({
+          x: pt.x, y: pt.y,
+          vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 1.0,
+          g: 0.11, life: 1, decay: 0.025 + Math.random() * 0.012,
+          r: 2.5 + Math.random() * 2.8, color: fireColors[i % fireColors.length], shape: i % 3 === 0 ? 'spark' : 'dot'
+        });
+      }
+      kickFx();
+      return;
+    }
+
+    if (kind === 'sunk') {
+      triggerSunkShake();
+      const targets = sunkCells && sunkCells.length ? sunkCells : [[r, c]];
+      const fireColors = ['#dc2626', '#f97316', '#facc15', '#fef08a', '#7f1d1d'];
+      targets.forEach(([sr, sc], idx) => {
+        setTimeout(() => {
+          const spt = cellScreenCenter(sr, sc);
+          if (!spt) return;
+          shockwaves.push({ x: spt.x, y: spt.y, rad: 6, maxRad: spt.size * 1.9, alpha: 0.95, color: '#f97316', width: 3.5 });
+          for (let i = 0; i < 22; i++) {
+            const ang = Math.random() * Math.PI * 2;
+            const spd = 1.8 + Math.random() * 4.5;
+            particles.push({
+              x: spt.x, y: spt.y,
+              vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 1.4,
+              g: 0.12, life: 1, decay: 0.02 + Math.random() * 0.01,
+              r: 3 + Math.random() * 3.5, color: fireColors[i % fireColors.length], shape: i % 2 === 0 ? 'spark' : 'dot'
+            });
+          }
+          kickFx();
+        }, idx * 75);
+      });
+    }
+  });
+}
+
+function spawnVictoryConfetti() {
+  resizeFx();
+  const palette = ['#2563eb', '#dc2626', '#f59e0b', '#16a34a', '#a855f7'];
+  for (let i = 0; i < 140; i++) {
+    confettiPieces.push({
+      x: Math.random() * innerWidth,
+      y: -15 - Math.random() * 140,
+      vx: (Math.random() - 0.5) * 3.2,
+      vy: 2 + Math.random() * 3.8,
+      g: 0.045,
+      life: 3.2,
+      color: palette[i % palette.length],
+      r: 4 + Math.random() * 4,
+      a: Math.random() * Math.PI * 2,
+      w: (Math.random() - 0.5) * 0.25
+    });
+  }
+  [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => beep(f, 0.22), i * 120));
+  kickFx();
+}
+
+function tickFx() {
+  fxRaf = 0;
+  fctx.clearRect(0, 0, innerWidth, innerHeight);
+
+  for (const sw of shockwaves) {
+    sw.rad += (sw.maxRad - sw.rad) * 0.16 + 0.8;
+    sw.alpha *= 0.91;
+    fctx.save();
+    fctx.globalAlpha = Math.max(0, sw.alpha);
+    fctx.strokeStyle = sw.color;
+    fctx.lineWidth = sw.width;
+    fctx.beginPath();
+    fctx.arc(sw.x, sw.y, sw.rad, 0, Math.PI * 2);
+    fctx.stroke();
+    fctx.restore();
+  }
+  shockwaves = shockwaves.filter(sw => sw.alpha > 0.03 && sw.rad < sw.maxRad);
+
+  for (const p of particles) {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += p.g;
+    p.life -= p.decay;
+    fctx.save();
+    fctx.globalAlpha = Math.max(0, p.life);
+    fctx.fillStyle = p.color;
+    if (p.shape === 'spark') {
+      fctx.translate(p.x, p.y);
+      fctx.rotate(Math.atan2(p.vy, p.vx));
+      fctx.fillRect(-p.r * 1.4, -p.r * 0.4, p.r * 2.8, p.r * 0.8);
+    } else {
+      fctx.beginPath();
+      fctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      fctx.fill();
+    }
+    fctx.restore();
+  }
+  particles = particles.filter(p => p.life > 0);
+
+  for (const c of confettiPieces) {
+    c.x += c.vx;
+    c.y += c.vy;
+    c.vy += c.g;
+    c.a += c.w;
+    c.life -= 0.012;
+    fctx.save();
+    fctx.globalAlpha = Math.max(0, Math.min(1, c.life));
+    fctx.fillStyle = c.color;
+    fctx.translate(c.x, c.y);
+    fctx.rotate(c.a);
+    fctx.fillRect(-c.r, -c.r / 2, c.r * 2, c.r);
+    fctx.restore();
+  }
+  confettiPieces = confettiPieces.filter(c => c.life > 0 && c.y < innerHeight + 25);
+
+  if (shockwaves.length || particles.length || confettiPieces.length) {
+    fxRaf = requestAnimationFrame(tickFx);
+  }
+}
+
+function makeGrid(val = 0) {
+  return Array.from({ length: N }, () => Array(N).fill(val));
+}
+
+/* ---------- Áudio & Vibração (vibra apenas ao afundar) ---------- */
+function beep(freq, dur) {
+  if (!sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.frequency.value = freq;
+    o.type = 'triangle';
+    g.gain.setValueAtTime(0.11, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+    o.connect(g);
+    g.connect(actx.destination);
+    o.start();
+    o.stop(actx.currentTime + dur);
+  } catch (e) {}
+}
+function feedbackShot(kind) {
+  if (kind === 'sunk') {
+    beep(520, 0.12);
+    setTimeout(() => beep(780, 0.18), 110);
+    if (sound && navigator.vibrate) navigator.vibrate([45, 35, 70]);
+  } else if (kind === 'hit') {
+    beep(660, 0.11);
+  } else {
+    beep(240, 0.09);
+  }
+}
+function paintSound() {
+  $('snd-btn').textContent = sound ? '🔊' : '🔇';
+}
+$('snd-btn').onclick = () => {
+  sound = !sound;
+  store.set('bn_sound', sound ? '1' : '0');
+  paintSound();
+  beep(500, 0.07);
+};
+
+/* ---------- Tema ---------- */
+const savedTheme = store.get('bn_theme');
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+function syncThemeMeta() {
+  const ds = document.documentElement.dataset.theme;
+  const dark = ds ? ds === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  const meta = $('meta-theme');
+  if (meta) meta.setAttribute('content', dark ? '#181817' : '#faf8f3');
+}
+function toggleTheme() {
+  const ds = document.documentElement.dataset.theme;
+  const dark = ds ? ds === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  const next = dark ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  store.set('bn_theme', next);
+  syncThemeMeta();
+}
+$('theme-top-btn').onclick = toggleTheme;
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change', syncThemeMeta);
+syncThemeMeta();
+paintSound();
+
+/* ---------- Wake Lock & Navegação ---------- */
+async function lockOn() {
+  if ('wakeLock' in navigator && !wakeLock) {
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch (e) {}
+  }
+}
+function lockOff() {
+  if (wakeLock) {
+    try { wakeLock.release(); } catch (e) {}
+    wakeLock = null;
+  }
+}
+
+function resetExitBtn() {
+  clearTimeout(exitConfirmTimer);
+  exitConfirmTimer = null;
+  const btn = $('exit-game');
+  delete btn.dataset.confirm;
+  btn.textContent = '← Sair';
+  btn.classList.remove('confirming');
+}
+
+function showScreen(name) {
+  resetExitBtn();
+  ['home', 'setup', 'place', 'lobby', 'invite', 'game'].forEach(s => {
+    $('screen-' + s).classList.toggle('hide', s !== name);
+  });
+  if (name === 'lobby' || (name === 'game' && mode === 'on')) lockOn();
+  else lockOff();
+}
+
+function showModal(html) {
+  $('modal-box').innerHTML = html;
+  $('modal-bg').classList.add('show');
+}
+function hideModal() {
+  $('modal-bg').classList.remove('show');
+  $('modal-box').innerHTML = '';
+}
+$('modal-bg').addEventListener('click', e => {
+  if (e.target === $('modal-bg')) hideModal();
+});
+
+/* ---------- Cronômetro de Turno (sem sumir/recolher barra) ---------- */
+function resetTurnTimer() {
+  lastWarnSec = -1;
+  if (turnLimit > 0 && !over) {
+    turnDeadline = Date.now() + turnLimit * 1000;
+  } else {
+    turnDeadline = 0;
+  }
+  updateTimerBar();
+}
+
+function updateTimerBar() {
+  const track = $('timer-track');
+  const fill = $('timer-fill');
+  if (!track || !fill) return;
+  if (turnLimit <= 0) {
+    track.classList.add('hide');
+    return;
+  }
+  track.classList.remove('hide');
+  if (over || turnDeadline <= 0) {
+    fill.style.transform = 'scaleX(0)';
+    fill.classList.remove('warn');
+    return;
+  }
+  const remMs = Math.max(0, turnDeadline - Date.now());
+  const ratio = Math.max(0, Math.min(1, remMs / (turnLimit * 1000)));
+  fill.style.transform = `scaleX(${ratio})`;
+  fill.classList.toggle('warn', remMs <= 5000);
+}
+
+function triggerAutoRandomShot() {
+  const p = activePlayerIndex();
+  const avail = [];
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      if (enemyViewShots[p][r][c] === 0) avail.push([r, c]);
+    }
+  }
+  if (avail.length) {
+    const [r, c] = avail[Math.floor(Math.random() * avail.length)];
+    handleAttack(r, c);
+  }
+}
+
+setInterval(() => {
+  if ($('screen-game').classList.contains('hide') || turnLimit <= 0 || over || turnDeadline <= 0 || timerPaused) return;
+  const rem = Math.max(0, Math.ceil((turnDeadline - Date.now()) / 1000));
+  renderMeta();
+  updateTimerBar();
+
+  if (rem <= 5 && rem > 0 && rem !== lastWarnSec && isMyTurnToFire()) {
+    lastWarnSec = rem;
+    beep(880, 0.05);
+  }
+  if (rem === 0 && isMyTurnToFire()) {
+    turnDeadline = 0;
+    triggerAutoRandomShot();
+  }
+}, 200);
+
+/* ---------- Eixos A-J e 1-10 ---------- */
+function renderAxes(colsId, rowsId) {
+  $(colsId).innerHTML = Array.from({ length: N }, (_, i) => `<span>${i + 1}</span>`).join('');
+  $(rowsId).innerHTML = ROWS.map(r => `<span>${r}</span>`).join('');
+}
+renderAxes('place-cols', 'place-rows');
+renderAxes('game-cols', 'game-rows');
+
+/* ---------- Setup & Modos ---------- */
+const savedName = store.get('bn_name');
+if (savedName) {
+  $('n1').value = savedName;
+  $('invite-name').value = savedName;
+}
+function saveName(v) {
+  v = v.trim();
+  if (v) {
+    store.set('bn_name', v);
+    $('n1').value = v;
+    $('invite-name').value = v;
+  }
+}
+
+const MODE_UI = {
+  on: { title: 'Partida Online', btn: 'Criar sala' },
+  ai: { title: 'Contra o Computador', btn: 'Posicionar frota' },
+  local: { title: '2 Jogadores', btn: 'Posicionar frota' }
+};
+
+function selectMode(m) {
+  mode = m;
+  const info = MODE_UI[m] || MODE_UI.on;
+  $('setup-title').textContent = info.title;
+  $('start-btn').textContent = info.btn;
+  $('names-grid').classList.toggle('r2', m === 'local');
+  $('n1-label').innerHTML = `<span class="dot-tag" style="background:var(--p1)"></span>${m === 'local' ? 'Jogador 1' : 'Seu nome'}`;
+  $('n2-wrap').classList.toggle('hide', m !== 'local');
+  $('lvl-wrap').classList.toggle('hide', m !== 'ai');
+  showScreen('setup');
+  setTimeout(() => { if (!$('n1').value.trim()) $('n1').focus(); }, 60);
+}
+
+document.querySelectorAll('.mc').forEach(card => {
+  card.addEventListener('click', () => selectMode(card.dataset.mode));
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      selectMode(card.dataset.mode);
+    }
+  });
+});
+
+$('back-to-modes').onclick = () => showScreen('home');
+
+document.querySelectorAll('.lvl-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    level = btn.dataset.lvl;
+    $('lvl').value = level;
+    document.querySelectorAll('.lvl-btn').forEach(b => b.classList.toggle('active', b === btn));
+  });
+});
+
+/* ---------- Posicionamento da Frota ---------- */
+function getShipCells(r, c, size, isVert) {
+  const cells = [];
+  for (let i = 0; i < size; i++) {
+    const rr = r + (isVert ? i : 0);
+    const cc = c + (isVert ? 0 : i);
+    if (rr < 0 || rr >= N || cc < 0 || cc >= N) return null;
+    cells.push([rr, cc]);
+  }
+  return cells;
+}
+
+function canPlaceCells(playerIdx, cells, ignoreShipId = -1) {
+  if (!cells) return false;
+  for (const [r, c] of cells) {
+    const cur = ownGrid[playerIdx][r][c];
+    if (cur !== -1 && cur !== ignoreShipId) return false;
+  }
+  return true;
+}
+
+function removeShip(playerIdx, shipId) {
+  const idx = ownShips[playerIdx].findIndex(s => s.id === shipId);
+  if (idx === -1) return;
+  const ship = ownShips[playerIdx][idx];
+  for (const [r, c] of ship.cells) ownGrid[playerIdx][r][c] = -1;
+  ownShips[playerIdx].splice(idx, 1);
+  selectedShip = shipId;
+}
+
+function placeShipAt(playerIdx, shipId, r, c) {
+  const spec = FLEET.find(f => f.id === shipId);
+  if (!spec) return false;
+  const cells = getShipCells(r, c, spec.size, vertical);
+  if (!canPlaceCells(playerIdx, cells, shipId)) return false;
+
+  if (ownShips[playerIdx].some(s => s.id === shipId)) {
+    removeShip(playerIdx, shipId);
+  }
+  for (const [rr, cc] of cells) ownGrid[playerIdx][rr][cc] = shipId;
+  ownShips[playerIdx].push({
+    id: spec.id,
+    name: spec.name,
+    size: spec.size,
+    cells,
+    hits: []
+  });
+
+  const nextFree = FLEET.find(f => !ownShips[playerIdx].some(s => s.id === f.id));
+  if (nextFree) selectedShip = nextFree.id;
+  return true;
+}
+
+function randomizeFleet(playerIdx) {
+  ownGrid[playerIdx] = makeGrid(-1);
+  ownShips[playerIdx] = [];
+  for (const spec of FLEET) {
+    let placed = false;
+    for (let attempt = 0; attempt < 400 && !placed; attempt++) {
+      const v = Math.random() < 0.5;
+      const r = Math.floor(Math.random() * N);
+      const c = Math.floor(Math.random() * N);
+      const cells = getShipCells(r, c, spec.size, v);
+      if (canPlaceCells(playerIdx, cells)) {
+        for (const [rr, cc] of cells) ownGrid[playerIdx][rr][cc] = spec.id;
+        ownShips[playerIdx].push({
+          id: spec.id,
+          name: spec.name,
+          size: spec.size,
+          cells,
+          hits: []
+        });
+        placed = true;
+      }
+    }
+  }
+}
+
+function openPlacement(playerIdx) {
+  setupPlayer = playerIdx;
+  ownGrid[playerIdx] = makeGrid(-1);
+  ownShips[playerIdx] = [];
+  selectedShip = 0;
+  vertical = false;
+  hoverCell = null;
+  $('rotate-btn').textContent = '↻ Orientação: Horizontal';
+  showScreen('place');
+  renderPlacement();
+}
+
+function renderPlacement() {
+  const p = setupPlayer;
+  const isLocalTwo = mode === 'local';
+  $('place-title').textContent = isLocalTwo ? `Frota de ${names[p]}` : 'Posicione sua frota';
+  $('place-sub').textContent = isLocalTwo
+    ? 'Toque no mapa para posicionar ou toque em um navio já posto para mover'
+    : 'Selecione um navio e toque no mapa para posicionar';
+  $('place-badge').textContent = `${ownShips[p].length}/${FLEET.length} navios`;
+
+  const spec = FLEET.find(f => f.id === selectedShip) || FLEET[0];
+  let previewSet = new Map();
+  if (hoverCell && spec && !ownShips[p].some(s => s.id === spec.id)) {
+    const cells = getShipCells(hoverCell.r, hoverCell.c, spec.size, vertical);
+    const ok = canPlaceCells(p, cells);
+    if (cells) {
+      for (const [rr, cc] of cells) previewSet.set(`${rr},${cc}`, ok ? 'preview-ok' : 'preview-bad');
+    }
+  }
+
+  const gridEl = $('place-grid');
+  gridEl.innerHTML = '';
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cell';
+      btn.setAttribute('aria-label', `${ROWS[r]}${c + 1}`);
+      const shipId = ownGrid[p][r][c];
+      if (shipId >= 0) btn.classList.add('ship');
+      const prevCls = previewSet.get(`${r},${c}`);
+      if (prevCls) btn.classList.add(prevCls);
+
+      btn.addEventListener('pointerenter', e => {
+        if (e.pointerType !== 'mouse') return;
+        hoverCell = { r, c };
+        updatePlacementPreview();
+      });
+      btn.addEventListener('pointerleave', e => {
+        if (e.pointerType !== 'mouse') return;
+        if (hoverCell && hoverCell.r === r && hoverCell.c === c) {
+          hoverCell = null;
+          updatePlacementPreview();
+        }
+      });
+      btn.onclick = () => {
+        if (shipId >= 0 && ownShips[p].some(s => s.id === shipId)) {
+          removeShip(p, shipId);
+          beep(360, 0.05);
+          renderPlacement();
+          return;
+        }
+        if (ownShips[p].length === FLEET.length) { beep(220, 0.07); return; }
+        if (placeShipAt(p, selectedShip, r, c)) {
+          beep(520, 0.06);
+          renderPlacement();
+        } else {
+          beep(220, 0.07);
+        }
+      };
+      gridEl.appendChild(btn);
+    }
+  }
+
+  const listEl = $('ship-list');
+  listEl.innerHTML = '';
+  for (const s of FLEET) {
+    const isPlaced = ownShips[p].some(x => x.id === s.id);
+    const item = document.createElement('div');
+    item.className = 'ship-item' + (s.id === selectedShip && !isPlaced ? ' active' : '') + (isPlaced ? ' placed' : '');
+    item.innerHTML = `
+      <span>${s.name} (${s.size})</span>
+      <span class="ship-pips">${Array.from({ length: s.size }, () => '<i></i>').join('')}</span>
+    `;
+    item.onclick = () => {
+      if (isPlaced) {
+        removeShip(p, s.id);
+        beep(360, 0.05);
+      } else {
+        selectedShip = s.id;
+        beep(440, 0.04);
+      }
+      renderPlacement();
+    };
+    listEl.appendChild(item);
+  }
+
+  $('confirm-fleet-btn').disabled = ownShips[p].length !== FLEET.length;
+  updatePlacementPreview();
+}
+function updatePlacementPreview() {
+  const p = setupPlayer;
+  const cellsEl = $('place-grid').querySelectorAll('.cell');
+  cellsEl.forEach(cell => cell.classList.remove('preview-ok', 'preview-bad'));
+  const spec = FLEET.find(f => f.id === selectedShip);
+  if (!hoverCell || !spec || ownShips[p].some(s => s.id === spec.id)) return;
+  const cells = getShipCells(hoverCell.r, hoverCell.c, spec.size, vertical);
+  if (!cells) return;
+  const ok = canPlaceCells(p, cells);
+  for (const [rr, cc] of cells) {
+    const cell = cellsEl[rr * N + cc];
+    if (cell) cell.classList.add(ok ? 'preview-ok' : 'preview-bad');
+  }
+}
+
+$('rotate-btn').onclick = () => {
+  vertical = !vertical;
+  $('rotate-btn').textContent = `↻ Orientação: ${vertical ? 'Vertical' : 'Horizontal'}`;
+  renderPlacement();
+};
+
+$('auto-place-btn').onclick = () => {
+  randomizeFleet(setupPlayer);
+  beep(580, 0.07);
+  renderPlacement();
+};
+
+$('place-back').onclick = () => {
+  if (mode === 'local' && setupPlayer === 1) {
+    openPlacement(0);
+  } else if (mode === 'on') {
+    goHome();
+  } else {
+    showScreen('setup');
+  }
+};
+
+$('confirm-fleet-btn').onclick = () => {
+  if (ownShips[setupPlayer].length !== FLEET.length) return;
+  beep(640, 0.08);
+
+  if (mode === 'local') {
+    if (setupPlayer === 0) {
+      showModal(`
+        <h2>Passar para ${names[1]}</h2>
+        <p>Entregue o aparelho para <strong>${names[1]}</strong> posicionar a frota sem ver o seu mapa.</p>
+        <div class="modal-actions">
+          <button type="button" class="sec" id="m-cancel">Cancelar</button>
+          <button type="button" id="m-go">Continuar</button>
+        </div>
+      `);
+      $('m-cancel').onclick = hideModal;
+      $('m-go').onclick = () => {
+        hideModal();
+        openPlacement(1);
+      };
+    } else {
+      startBattle();
+    }
+    return;
+  }
+
+  if (mode === 'ai') {
+    ownGrid[1] = makeGrid(-1);
+    ownShips[1] = [];
+    randomizeFleet(1);
+    startBattle();
+    return;
+  }
+
+  if (mode === 'on') {
+    fleetReady[me] = true;
+    $('confirm-fleet-btn').disabled = true;
+    $('place-sub').textContent = 'Frota confirmada! Aguardando o outro jogador...';
+    if (conn && conn.open) {
+      conn.send({ type: 'fleet-ready' });
+    }
+    if (me === 0 && fleetReady[0] && fleetReady[1]) {
+      startOnlineBattleFromHost();
+    }
+  }
+};
+
+/* ---------- Combate & Troca de Foco por Turno ---------- */
+function startBattle() {
+  turn = 0;
+  winner = -1;
+  over = false;
+  manualPeek = false;
+  aiQueue = [];
+  awaitingFire = false;
+  timerPaused = false;
+  clearFx();
+  incomingShots = [makeGrid(0), makeGrid(0)];
+  enemyViewShots = [makeGrid(0), makeGrid(0)];
+  lastShotText = 'Aguardando primeiro disparo'; enemySunk = 0;
+  lastHighlight = null;
+
+  if (mode === 'local') {
+    activeBoardView = 'enemy';
+    timerPaused = true;
+    turnDeadline = 0;
+    showScreen('game');
+    renderGame();
+    showModal(`
+      <h2>Turno de ${names[0]}</h2>
+      <p>É a sua vez de atacar o mapa de <strong>${names[1]}</strong>.</p>
+      <div class="modal-actions" style="grid-template-columns:1fr">
+        <button type="button" id="m-start-p1">Começar ataque</button>
+      </div>
+    `);
+    $('m-start-p1').onclick = () => {
+      hideModal();
+      timerPaused = false;
+      resetTurnTimer();
+      renderGame();
+    };
+    return;
+  }
+
+  updateAutoFocus();
+  resetTurnTimer();
+  showScreen('game');
+  renderGame();
+  if (mode === 'ai' && turn === 1) scheduleAiShot();
+}
+
+function updateAutoFocus() {
+  manualPeek = false;
+  if (mode === 'ai') {
+    activeBoardView = turn === 0 ? 'enemy' : 'own';
+  } else if (mode === 'on') {
+    activeBoardView = turn === me ? 'enemy' : 'own';
+  } else {
+    activeBoardView = 'enemy';
+  }
+}
+
+function activePlayerIndex() {
+  if (mode === 'local') return turn;
+  if (mode === 'on') return me;
+  return 0;
+}
+
+function isMyTurnToFire() {
+  if (over || timerPaused) return false;
+  if (mode === 'local') return true;
+  if (mode === 'ai') return turn === 0 && !aiTimer;
+  if (mode === 'on') return Boolean(conn && conn.open && turn === me && !awaitingFire && fleetReady[0] && fleetReady[1]);
+  return false;
+}
+
+function fleetRemaining(i) {
+  if (mode === 'on') return i === me ? countRemainingShips(ownShips[me]) : FLEET.length - enemySunk;
+  return countRemainingShips(ownShips[i]);
+}
+function countRemainingShips(shipsArr) {
+  return shipsArr.filter(s => s.hits.length < s.size).length;
+}
+
+function applyShotLocally(defenderIdx, r, c) {
+  if (incomingShots[defenderIdx][r][c] !== 0) return null;
+  const shipId = ownGrid[defenderIdx][r][c];
+  const coord = `${ROWS[r]}${c + 1}`;
+
+  if (shipId < 0) {
+    incomingShots[defenderIdx][r][c] = 1;
+    return { r, c, coord, result: 'miss', sunkShip: null, allSunk: false };
+  }
+
+  const ship = ownShips[defenderIdx].find(s => s.id === shipId);
+  if (ship && !ship.hits.some(([hr, hc]) => hr === r && hc === c)) {
+    ship.hits.push([r, c]);
+  }
+  const isSunk = ship && ship.hits.length >= ship.size;
+
+  if (isSunk) {
+    for (const [sr, sc] of ship.cells) {
+      incomingShots[defenderIdx][sr][sc] = 3;
+    }
+  } else {
+    incomingShots[defenderIdx][r][c] = 2;
+  }
+
+  const allSunk = ownShips[defenderIdx].every(s => s.hits.length >= s.size);
+  return {
+    r,
+    c,
+    coord,
+    result: isSunk ? 'sunk' : 'hit',
+    sunkShip: isSunk ? { name: ship.name, cells: ship.cells } : null,
+    allSunk
+  };
+}
+
+function recordAttackOnEnemyView(attackerIdx, outcome) {
+  if (outcome.result === 'sunk' && outcome.sunkShip) {
+    for (const [sr, sc] of outcome.sunkShip.cells) {
+      enemyViewShots[attackerIdx][sr][sc] = 3;
+    }
+  } else if (outcome.result === 'hit') {
+    enemyViewShots[attackerIdx][outcome.r][outcome.c] = 2;
+  } else {
+    enemyViewShots[attackerIdx][outcome.r][outcome.c] = 1;
+  }
+}
+
+function formatOutcomeText(shooterName, outcome) {
+  if (outcome.result === 'sunk') return `${shooterName} afundou ${outcome.sunkShip.name} em ${outcome.coord}! 💥`;
+  if (outcome.result === 'hit') return `${shooterName} acertou em ${outcome.coord}! 🔥`;
+  return `${shooterName} atirou em ${outcome.coord} — água`;
+}
+
+function handleAttack(r, c) {
+  if (!isMyTurnToFire()) return;
+
+  if (mode === 'on') {
+    if (enemyViewShots[me][r][c] !== 0 || !conn || !conn.open) return;
+    awaitingFire = true;
+    conn.send({ type: 'fire', r, c });
+    renderGame();
+    return;
+  }
+
+  if (mode === 'ai') {
+    if (enemyViewShots[0][r][c] !== 0) return;
+
+    const outcome = applyShotLocally(1, r, c);
+    if (!outcome) return;
+    recordAttackOnEnemyView(0, outcome);
+    lastShotText = formatOutcomeText(names[0], outcome);
+    lastHighlight = { view: 'enemy', r, c };
+    feedbackShot(outcome.result);
+
+    if (outcome.allSunk) {
+      over = true;
+      winner = 0;
+      turnDeadline = 0;
+      renderGame();
+      spawnImpactFx(outcome.result, r, c, outcome.sunkShip?.cells);
+      spawnVictoryConfetti();
+      return;
+    }
+
+    turn = 1;
+    renderGame();
+    spawnImpactFx(outcome.result, r, c, outcome.sunkShip?.cells);
+
+    setTimeout(() => {
+      if (over || turn !== 1) return;
+      updateAutoFocus();
+      resetTurnTimer();
+      renderGame();
+      scheduleAiShot();
+    }, 650);
+    return;
+  }
+
+  if (mode === 'local') {
+    const shooter = turn;
+    const defender = 1 - shooter;
+    if (enemyViewShots[shooter][r][c] !== 0) return;
+
+    timerPaused = true;
+
+    const outcome = applyShotLocally(defender, r, c);
+    if (!outcome) { timerPaused = false; return; }
+    recordAttackOnEnemyView(shooter, outcome);
+    lastShotText = formatOutcomeText(names[shooter], outcome);
+    lastHighlight = { view: 'enemy', r, c };
+    feedbackShot(outcome.result);
+
+    if (outcome.allSunk) {
+      over = true;
+      winner = shooter;
+      turnDeadline = 0;
+      renderGame();
+      spawnImpactFx(outcome.result, r, c, outcome.sunkShip?.cells);
+      spawnVictoryConfetti();
+      return;
+    }
+
+    renderGame();
+    spawnImpactFx(outcome.result, r, c, outcome.sunkShip?.cells);
+
+    setTimeout(() => {
+      if (over) return;
+      showModal(`
+        <h2>Passar para ${names[defender]}</h2>
+        <p>${lastShotText}. Entregue o aparelho para <strong>${names[defender]}</strong>.</p>
+        <div class="modal-actions" style="grid-template-columns:1fr">
+          <button type="button" id="m-next-turn">Assumir turno</button>
+        </div>
+      `);
+      $('m-next-turn').onclick = () => {
+        hideModal();
+        turn = defender;
+        timerPaused = false;
+        activeBoardView = 'enemy';
+        resetTurnTimer();
+        renderGame();
+      };
+    }, 750);
+  }
+}
+
+/* ---------- IA (Fácil, Médio, Difícil) ---------- */
+function scheduleAiShot() {
+  clearTimeout(aiTimer);
+  aiTimer = setTimeout(() => {
+    aiTimer = null;
+    if (over || mode !== 'ai' || turn !== 1) return;
+
+    const pick = chooseAiCoord();
+    if (!pick) return;
+    const [r, c] = pick;
+    const outcome = applyShotLocally(0, r, c);
+    if (!outcome) return;
+
+    recordAttackOnEnemyView(1, outcome);
+    lastShotText = formatOutcomeText(names[1], outcome);
+    lastHighlight = { view: 'own', r, c };
+    feedbackShot(outcome.result);
+
+    if (outcome.result === 'hit') {
+      for (const [dr, dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < N && nc >= 0 && nc < N && incomingShots[0][nr][nc] === 0) {
+          aiQueue.push([nr, nc]);
+        }
+      }
+    } else if (outcome.result === 'sunk') {
+      aiQueue = [];
+    }
+
+    if (outcome.allSunk) {
+      over = true;
+      winner = 1;
+      turnDeadline = 0;
+      renderGame();
+      spawnImpactFx(outcome.result, r, c, outcome.sunkShip?.cells);
+      return;
+    }
+
+    renderGame();
+    spawnImpactFx(outcome.result, r, c, outcome.sunkShip?.cells);
+
+    setTimeout(() => {
+      if (over) return;
+      turn = 0;
+      updateAutoFocus();
+      resetTurnTimer();
+      renderGame();
+    }, 700);
+  }, 600);
+}
+
+function densityPick(avail) {
+  const sizes = ownShips[0].filter(s => s.hits.length < s.size).map(s => s.size);
+  const w = makeGrid(0);
+  for (const size of sizes) for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) for (const v of [false, true]) {
+    const cells = getShipCells(r, c, size, v);
+    if (!cells) continue;
+    let ok = true, hits = 0;
+    for (const [rr, cc] of cells) {
+      const st = incomingShots[0][rr][cc];
+      if (st === 1 || st === 3) { ok = false; break; }
+      if (st === 2) hits++;
+    }
+    if (!ok) continue;
+    for (const [rr, cc] of cells) if (incomingShots[0][rr][cc] === 0) w[rr][cc] += 1 + hits * 12;
+  }
+  let best = -1, pool = [];
+  for (const [r, c] of avail) {
+    if (w[r][c] > best) { best = w[r][c]; pool = [[r, c]]; } else if (w[r][c] === best) pool.push([r, c]);
+  }
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function chooseAiCoord() {
+  const avail = [];
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      if (incomingShots[0][r][c] === 0) avail.push([r, c]);
+    }
+  }
+  if (!avail.length) return null;
+
+  if (level === 'easy') {
+    return avail[Math.floor(Math.random() * avail.length)];
+  }
+
+  if (level === 'hard') return densityPick(avail);
+
+  while (aiQueue.length) {
+    const [qr, qc] = aiQueue.shift();
+    if (incomingShots[0][qr][qc] === 0) return [qr, qc];
+  }
+
+  if (level === 'hard') {
+    const parity = avail.filter(([r, c]) => (r + c) % 2 === 0);
+    const pool = parity.length ? parity : avail;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  return avail[Math.floor(Math.random() * avail.length)];
+}
+
+/* ---------- Renderização do Jogo ---------- */
+function renderMeta() {
+  const tag = mode === 'on' ? 'Online' : mode === 'ai' ? `IA (${{easy:'Fácil',mid:'Médio',hard:'Difícil'}[level]})` : 'Local';
+  let timerHtml = '';
+  if (turnLimit > 0) {
+    const rem = over || turnDeadline <= 0 ? 0 : Math.max(0, Math.ceil((turnDeadline - Date.now()) / 1000));
+    timerHtml = `<span class="tm${!over && rem > 0 && rem <= 5 ? ' warn' : ''}">⏱ ${rem}s</span>`;
+  }
+  $('game-meta').innerHTML = `10×10 • ${tag}${timerHtml}`;
+}
+
+function renderGame() {
+  const p = activePlayerIndex();
+
+  $('fn1').textContent = names[0];
+  $('fn2').textContent = names[1];
+  $('fv1').textContent = `${fleetRemaining(0)} navios`;
+  $('fv2').textContent = `${fleetRemaining(1)} navios`;
+  $('fb1').classList.toggle('on', !over && turn === 0);
+  $('fb2').classList.toggle('on', !over && turn === 1);
+
+  renderMeta();
+  updateTimerBar();
+
+  let newMsg;
+  if (over) {
+    newMsg = (mode === 'on' && winner === me) || (mode !== 'on' && winner === 0)
+      ? `Fim de jogo! ${names[winner]} venceu! 🎉`
+      : `Fim de jogo! ${names[winner]} venceu.`;
+  } else if (mode === 'on') {
+    if (awaitingFire) newMsg = 'Enviando disparo...';
+    else if (turn === me) newMsg = 'Sua vez de atacar!';
+    else newMsg = `Vez de ${names[turn]} atacar...`;
+  } else if (mode === 'ai') {
+    newMsg = turn === 0 ? 'Sua vez de atacar!' : `${names[1]} está mirando...`;
+  } else {
+    newMsg = `Vez de ${names[turn]} atacar!`;
+  }
+  $('msg').textContent = newMsg;
+
+  const showingEnemy = activeBoardView === 'enemy';
+  const pill = $('stage-pill');
+  if (showingEnemy) {
+    $('stage-title').textContent = mode === 'local' ? `Mapa Inimigo (Alvo: ${names[1 - turn]})` : 'Mapa Inimigo';
+    pill.textContent = 'Modo Ataque';
+    pill.className = 'pill attack';
+    $('peek-btn').textContent = '👁 Ver meu mapa';
+  } else {
+    $('stage-title').textContent = mode === 'local' ? `Frota de ${names[turn]}` : 'Seu Mapa';
+    pill.textContent = manualPeek ? 'Espiando frota' : 'Defesa sob fogo';
+    pill.className = 'pill defend';
+    $('peek-btn').textContent = '🎯 Voltar ao ataque';
+  }
+
+  $('last-shot-info').textContent = lastShotText;
+
+  const gridEl = $('game-grid');
+  gridEl.innerHTML = '';
+
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cell';
+      btn.setAttribute('aria-label', `${ROWS[r]}${c + 1}`);
+
+      if (showingEnemy) {
+        const st = enemyViewShots[p][r][c];
+        if (st === 1) btn.classList.add('miss');
+        else if (st === 2) { btn.classList.add('hit'); btn.textContent = '✕'; }
+        else if (st === 3) { btn.classList.add('sunk'); btn.textContent = '✕'; }
+
+        if (lastHighlight && lastHighlight.view === 'enemy' && lastHighlight.r === r && lastHighlight.c === c) {
+          btn.classList.add('last-shot');
+        }
+
+        const canClick = isMyTurnToFire() && st === 0;
+        btn.disabled = !canClick;
+        if (canClick) btn.onclick = () => handleAttack(r, c);
+      } else {
+        const defIdx = mode === 'local' ? turn : p;
+        const hasShip = ownGrid[defIdx] && ownGrid[defIdx][r][c] >= 0;
+        const st = incomingShots[defIdx] ? incomingShots[defIdx][r][c] : 0;
+
+        if (hasShip) btn.classList.add('ship');
+        if (st === 1) btn.classList.add('miss');
+        else if (st === 2) { btn.classList.add('hit'); btn.textContent = '✕'; }
+        else if (st === 3) { btn.classList.add('sunk'); btn.textContent = '✕'; }
+
+        if (lastHighlight && lastHighlight.view === 'own' && lastHighlight.r === r && lastHighlight.c === c) {
+          btn.classList.add('last-shot');
+        }
+
+        btn.disabled = true;
+      }
+
+      gridEl.appendChild(btn);
+    }
+  }
+
+  $('end-bar').classList.toggle('hide', !over);
+  if (mode === 'on') {
+    $('rematch-btn').disabled = !peerConnected;
+  } else {
+    $('rematch-btn').disabled = false;
+  }
+}
+
+$('peek-btn').onclick = () => {
+  if (over) {
+    activeBoardView = activeBoardView === 'enemy' ? 'own' : 'enemy';
+    renderGame();
+    return;
+  }
+  if (activeBoardView === 'enemy') {
+    manualPeek = true;
+    activeBoardView = 'own';
+  } else {
+    manualPeek = false;
+    activeBoardView = (mode === 'ai' && turn === 1) || (mode === 'on' && turn !== me) ? 'own' : 'enemy';
+  }
+  renderGame();
+};
+
+/* ---------- Multiplayer P2P (PeerJS) ---------- */
+function cleanupNetwork() {
+  clearTimeout(openTimer); openTimer = null;
+  clearTimeout(connTimer); connTimer = null;
+  awaitingFire = false;
+  peerConnected = false;
+  fleetReady = [false, false];
+  turnDeadline = 0;
+  if (conn) { try { conn.close(); } catch (e) {} conn = null; }
+  if (peer) { try { peer.destroy(); } catch (e) {} peer = null; }
+  me = -1;
+  code = '';
+  lockOff();
+}
+
+function clearHash() {
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+}
+
+function inviteLink() {
+  return `${location.origin}${location.pathname}#${code}`;
+}
+
+function startOnlineBattleFromHost() {
+  turn = 0;
+  winner = -1;
+  over = false;
+  manualPeek = false;
+  awaitingFire = false;
+  timerPaused = false;
+  clearFx();
+  incomingShots = [makeGrid(0), makeGrid(0)];
+  enemyViewShots = [makeGrid(0), makeGrid(0)];
+  lastShotText = 'Aguardando primeiro disparo'; enemySunk = 0;
+  lastHighlight = null;
+  updateAutoFocus();
+  resetTurnTimer();
+
+  if (conn && conn.open) {
+    conn.send({ type: 'battle-start', names, turnLimit });
+  }
+  showScreen('game');
+  renderGame();
+}
+
+function onFire(msg) {
+  const r = msg.r, c = msg.c;
+  if (over || turn === me || !Number.isInteger(r) || !Number.isInteger(c) || r < 0 || r >= N || c < 0 || c >= N) return;
+  const outcome = applyShotLocally(me, r, c);
+  if (!outcome) return;
+  const other = 1 - me;
+  lastShotText = formatOutcomeText(names[other], outcome);
+  lastHighlight = { view: 'own', r, c };
+  feedbackShot(outcome.result);
+  if (outcome.allSunk) { over = true; winner = other; turnDeadline = 0; } else { turn = me; }
+  conn.send({ type: 'shot-result', outcome, turn, over, winner, lastShotText });
+  renderGame();
+  spawnImpactFx(outcome.result, r, c, outcome.sunkShip?.cells);
+  if (over) return;
+  resetTurnTimer();
+  setTimeout(() => { if (!over) { updateAutoFocus(); renderGame(); } }, 650);
+}
+
+function onShotResult(msg) {
+  const o = msg.outcome;
+  if (!o || over || turn !== me) return;
+  awaitingFire = false;
+  recordAttackOnEnemyView(me, o);
+  if (o.result === 'sunk') enemySunk++;
+  lastShotText = msg.lastShotText || formatOutcomeText(names[me], o);
+  lastHighlight = { view: 'enemy', r: o.r, c: o.c };
+  feedbackShot(o.result);
+  over = Boolean(msg.over);
+  winner = msg.winner ?? -1;
+  if (over) turnDeadline = 0; else turn = msg.turn;
+  renderGame();
+  spawnImpactFx(o.result, o.r, o.c, o.sunkShip?.cells);
+  if (over) { if (winner === me) spawnVictoryConfetti(); return; }
+  resetTurnTimer();
+  setTimeout(() => { if (!over) { updateAutoFocus(); renderGame(); } }, 650);
+}
+
+function attachPeerEvents(c, isHost) {
+  conn = c;
+  c.on('open', () => {
+    clearTimeout(connTimer); connTimer = null;
+    peerConnected = true;
+    if (!isHost) {
+      me = 1;
+      const guestName = $('invite-name').value.trim() || 'Convidado(a)';
+      saveName(guestName);
+      $('invite-status').textContent = 'Conectado! Abrindo posicionamento...';
+      c.send({ type: 'hello', name: guestName });
+    }
+  });
+
+  c.on('data', msg => {
+    if (!msg || typeof msg !== 'object') return;
+
+    if (msg.type === 'hello' && isHost) {
+      const hostName = $('n1').value.trim() || 'Anfitrião';
+      const guestName = String(msg.name || 'Convidado(a)').slice(0, 14);
+      names = [hostName, guestName];
+      fleetReady = [false, false];
+      c.send({ type: 'welcome', names, turnLimit });
+      openPlacement(0);
+    } else if (msg.type === 'welcome' && !isHost) {
+      names = Array.isArray(msg.names) ? msg.names : ['Anfitrião', names[1]];
+      turnLimit = msg.turnLimit || 0;
+      fleetReady = [false, false];
+      openPlacement(1);
+    } else if (msg.type === 'fleet-ready') {
+      const other = isHost ? 1 : 0;
+      fleetReady[other] = true;
+      if (isHost && fleetReady[0] && fleetReady[1]) {
+        startOnlineBattleFromHost();
+      } else if (!$('screen-game').classList.contains('hide')) {
+        renderGame();
+      }
+    } else if (msg.type === 'battle-start' && !isHost) {
+      if (Array.isArray(msg.names)) names = msg.names;
+      turnLimit = msg.turnLimit || 0;
+      turn = 0;
+      winner = -1;
+      over = false;
+      manualPeek = false;
+      awaitingFire = false;
+      timerPaused = false;
+      clearFx();
+      incomingShots = [makeGrid(0), makeGrid(0)];
+      enemyViewShots = [makeGrid(0), makeGrid(0)];
+      lastShotText = 'Aguardando primeiro disparo'; enemySunk = 0;
+      lastHighlight = null;
+      updateAutoFocus();
+      resetTurnTimer();
+      showScreen('game');
+      renderGame();
+    } else if (msg.type === 'fire') {
+      onFire(msg);
+    } else if (msg.type === 'shot-result') {
+      onShotResult(msg);
+    } else if (msg.type === 'rematch-request') {
+      fleetReady = [false, false];
+      turnDeadline = 0;
+      clearFx();
+      openPlacement(me);
+    }
+  });
+
+  c.on('close', () => {
+    clearTimeout(connTimer); connTimer = null;
+    if (conn === c) conn = null;
+    peerConnected = false;
+    awaitingFire = false;
+    turnDeadline = 0;
+    updateTimerBar();
+    if (!$('screen-game').classList.contains('hide') && !over) {
+      $('msg').textContent = 'A conexão com o outro jogador foi encerrada.';
+      $('end-bar').classList.remove('hide');
+      $('rematch-btn').disabled = true;
+    }
+  });
+
+  c.on('close', () => {
+    if (mode === 'on' && !$('screen-place').classList.contains('hide')) {
+      $('place-sub').textContent = 'O outro jogador saiu. Volte ao menu.';
+      $('confirm-fleet-btn').disabled = true;
+    }
+  });
+
+  c.on('error', () => {
+    clearTimeout(connTimer); connTimer = null;
+    awaitingFire = false;
+    $('invite-status').textContent = 'Erro na conexão P2P entre os jogadores.';
+    $('join-btn').disabled = false;
+  });
+}
+
+function createOnlineRoom(retry = 0) {
+  if (typeof Peer === 'undefined') {
+    alert('Não foi possível carregar o PeerJS. Verifique sua conexão com a internet.');
+    return;
+  }
+  cleanupNetwork();
+  mode = 'on';
+  turnLimit = $('turn-timer-chk').checked ? 30 : 0;
+  const hostName = $('n1').value.trim() || 'Jogador 1';
+  saveName(hostName);
+  names = [hostName, 'Convidado(a)'];
+
+  const roomCode = 'naval-' + Math.random().toString(36).slice(2, 9);
+  code = roomCode;
+  $('lobby-code').textContent = roomCode;
+  $('lobby-info').textContent = `10×10${turnLimit ? ' · 30s/jogada' : ''} · ${hostName}`;
+  $('lobby-status').textContent = retry ? `Tentando (${retry}/4)...` : 'Registrando sala...';
+  $('copy-link').disabled = $('share-wa').disabled = true;
+  showScreen('lobby');
+
+  peer = new Peer(roomCode, PEER_CONFIG);
+  peer.on('open', pid => {
+    me = 0;
+    code = pid;
+    $('lobby-status').textContent = 'Sala pronta';
+    $('copy-link').disabled = $('share-wa').disabled = false;
+    try { history.replaceState(null, '', '#' + pid); } catch (e) {}
+  });
+  peer.on('connection', c => {
+    if (conn && conn.open) { c.close(); return; }
+    $('lobby-status').textContent = 'Conectando...';
+    attachPeerEvents(c, true);
+  });
+  peer.on('disconnected', () => {
+    if (!peer || peer.destroyed) return;
+    $('lobby-status').textContent = 'Reconectando ao servidor de salas...';
+    try { peer.reconnect(); } catch (e) { $('lobby-status').textContent = 'Conexão com servidor perdida. Crie outra sala.'; }
+  });
+  peer.on('error', err => {
+    if (err && err.type === 'unavailable-id' && retry < 4) {
+      createOnlineRoom(retry + 1);
+      return;
+    }
+    $('lobby-status').textContent = err && err.type ? `Erro de conexão (${err.type}). Tente criar outra sala.` : 'Falha ao criar sala. Tente novamente.';
+  });
+}
+
+function openInviteScreen(presetCode = '') {
+  cleanupNetwork();
+  mode = 'on';
+  code = presetCode;
+  $('invite-code-wrap').classList.toggle('hide', Boolean(presetCode));
+  $('invite-code').value = presetCode;
+  $('invite-badge').textContent = presetCode;
+  $('invite-badge').classList.toggle('hide', !presetCode);
+  $('invite-status').textContent = '';
+  $('join-btn').disabled = false;
+  showScreen('invite');
+  setTimeout(() => (presetCode ? $('invite-name') : $('invite-code')).focus(), 60);
+}
+
+function attemptGuestJoin(targetCode, attempt) {
+  if (!peer || peer.destroyed) return;
+  if (conn) { try { conn.close(); } catch (e) {} conn = null; }
+  $('invite-status').textContent = attempt === 1 ? 'Conectando à sala...' : `Tentando novamente (${attempt}/3)...`;
+  const c = peer.connect(targetCode, { reliable: true });
+  attachPeerEvents(c, false);
+
+  connTimer = setTimeout(() => {
+    if (peerConnected) return;
+    if (attempt < 3) attemptGuestJoin(targetCode, attempt + 1);
+    else {
+      $('invite-status').textContent = 'Não foi possível entrar. Confira se a sala está aberta.';
+      $('join-btn').disabled = false;
+    }
+  }, 8000);
+}
+
+function joinOnlineRoom() {
+  const raw = $('invite-code-wrap').classList.contains('hide') ? code : $('invite-code').value;
+  const cleanCode = raw.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+  const guestName = $('invite-name').value.trim();
+  if (!cleanCode) {
+    $('invite-status').textContent = 'Digite o código da sala.';
+    $('invite-code').focus();
+    return;
+  }
+  if (!guestName) {
+    $('invite-status').textContent = 'Digite seu nome.';
+    $('invite-name').focus();
+    return;
+  }
+  if (typeof Peer === 'undefined') {
+    $('invite-status').textContent = 'Biblioteca PeerJS indisponível.';
+    return;
+  }
+  saveName(guestName);
+  cleanupNetwork();
+  mode = 'on';
+  code = cleanCode;
+  names = ['Anfitrião', guestName];
+  $('join-btn').disabled = true;
+  $('invite-status').textContent = 'Iniciando conexão...';
+
+  peer = new Peer(PEER_CONFIG);
+  openTimer = setTimeout(() => {
+    if (peer && !peer.open) {
+      cleanupNetwork();
+      $('join-btn').disabled = false;
+      $('invite-status').textContent = 'Tempo esgotado ao conectar.';
+    }
+  }, 9000);
+
+  peer.on('open', () => {
+    clearTimeout(openTimer); openTimer = null;
+    try { history.replaceState(null, '', '#' + cleanCode); } catch (e) {}
+    attemptGuestJoin(cleanCode, 1);
+  });
+  peer.on('disconnected', () => {
+    if (!peer || peer.destroyed) return;
+    $('invite-status').textContent = 'Reconectando ao servidor...';
+    try { peer.reconnect(); } catch (e) { $('invite-status').textContent = 'Conexão perdida. Tente entrar novamente.'; }
+  });
+
+  peer.on('error', err => {
+    clearTimeout(openTimer); openTimer = null;
+    clearTimeout(connTimer);
+    $('join-btn').disabled = false;
+    $('invite-status').textContent = err && err.type === 'peer-unavailable'
+      ? 'Sala não encontrada ou já encerrada.'
+      : `Erro ao conectar (${err && err.type ? err.type : 'rede'}).`;
+  });
+}
+
+/* ---------- Botões & Atalhos ---------- */
+$('start-btn').onclick = () => {
+  turnLimit = $('turn-timer-chk').checked ? 30 : 0;
+  if (mode === 'on') {
+    createOnlineRoom();
+    return;
+  }
+  const p1 = $('n1').value.trim() || 'Jogador 1';
+  saveName(p1);
+  if (mode === 'ai') {
+    names = [p1, 'Computador'];
+  } else {
+    const p2 = $('n2').value.trim() || 'Jogador 2';
+    names = [p1, p2];
+  }
+  openPlacement(0);
+};
+
+$('n1').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (mode === 'local' && !$('n2').value.trim()) $('n2').focus();
+    else $('start-btn').click();
+  }
+});
+$('n2').addEventListener('keydown', e => {
+  if (e.key === 'Enter') $('start-btn').click();
+});
+
+$('open-manual-join').onclick = () => openInviteScreen('');
+$('cancel-lobby').onclick = () => { goHome(); };
+$('cancel-invite').onclick = () => { goHome(); };
+$('back-home-btn').onclick = () => { goHome(); };
+
+function goHome() {
+  clearTimeout(aiTimer); aiTimer = null;
+  turnDeadline = 0;
+  clearFx();
+  hideModal();
+  cleanupNetwork();
+  clearHash();
+  showScreen('home');
+}
+
+$('exit-game').onclick = () => {
+  const btn = $('exit-game');
+  if (over || btn.dataset.confirm === '1') {
+    goHome();
+    return;
+  }
+  btn.dataset.confirm = '1';
+  btn.textContent = 'Sair mesmo?';
+  btn.classList.add('confirming');
+  clearTimeout(exitConfirmTimer);
+  exitConfirmTimer = setTimeout(resetExitBtn, 3000);
+};
+
+$('rematch-btn').onclick = () => {
+  clearTimeout(aiTimer); aiTimer = null;
+  turnDeadline = 0;
+  clearFx();
+  if (mode === 'on') {
+    if (!conn || !conn.open) return;
+    fleetReady = [false, false];
+    conn.send({ type: 'rematch-request' });
+    openPlacement(me);
+    return;
+  }
+  openPlacement(0);
+};
+
+async function copyText(txt, onOk) {
+  try {
+    await navigator.clipboard.writeText(txt);
+    onOk();
+  } catch (e) {
+    prompt('Copie o conteúdo:', txt);
+  }
+}
+
+function copyRoomCode() {
+  if (!code) return;
+  copyText(code, () => {
+    $('room-label').textContent = 'Copiado!';
+    setTimeout(() => { $('room-label').textContent = 'Toque para copiar o código'; }, 2000);
+  });
+}
+$('copy-room-box').onclick = copyRoomCode;
+$('copy-room-box').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copyRoomCode(); }
+});
+
+$('copy-link').onclick = () => {
+  if (!code) return;
+  copyText(inviteLink(), () => {
+    $('copy-link').textContent = 'Link copiado!';
+    setTimeout(() => { $('copy-link').textContent = 'Copiar link'; }, 2000);
+  });
+};
+
+$('share-wa').onclick = async () => {
+  if (!code) return;
+  const url = inviteLink();
+  const text = `Bora jogar Batalha Naval comigo? Entra pelo link: ${url}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Batalha Naval', text: 'Bora jogar Batalha Naval comigo? 🚢', url });
+      return;
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+    }
+  }
+  window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank', 'noopener');
+};
+
+$('invite-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') joinOnlineRoom();
+});
+$('invite-code').addEventListener('keydown', e => {
+  if (e.key === 'Enter') $('invite-name').focus();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && (!$('screen-lobby').classList.contains('hide') || (mode === 'on' && !$('screen-game').classList.contains('hide')))) lockOn();
+});
+
+const initialHash = location.hash.slice(1).toLowerCase();
+if (/^naval-[a-z0-9]+$/.test(initialHash)) {
+  openInviteScreen(initialHash);
+} else {
+  showScreen('home');
+}
+</script>
+</body>
+</html>
