@@ -48,8 +48,8 @@ h1{margin:0;font-size:2rem;letter-spacing:-.03em}
 .modes{display:flex;flex-wrap:wrap;gap:6px}
 .modes span{font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
 .play{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.9rem;color:var(--accent)}
-.soon{border-style:dashed;opacity:.7;cursor:default;pointer-events:none}
 .foot{text-align:center;color:var(--muted);font-size:.76rem;margin:28px 0 0;opacity:.75}
+.soon-note{margin:14px 0 0;padding:10px 14px;border:1px dashed var(--line);border-radius:14px;background:var(--card);color:var(--muted);font-size:.82rem;text-align:center}
 .cover{display:block;margin:-20px -20px 0;width:calc(100% + 40px);aspect-ratio:16/9;object-fit:cover;border-radius:20px 20px 0 0;background:var(--bg)}
 main{position:relative}
 @media (max-width:600px){
@@ -61,20 +61,15 @@ main{position:relative}
   .bar{position:absolute;top:0;right:0;margin:0}
   main{padding-top:0}
 }
-/* Layout compacto: 2 colunas, capa quadrada e nome, sem rolagem */
+/* Layout compacto: duas colunas, capas 4:3 e modos visíveis */
 .games{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .game{padding:0;gap:0;overflow:hidden;border-radius:18px}
-.game .cover{margin:0;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:0}
-.game:not(.soon) .ico,
-.game:not(.soon) .modes,
-.game:not(.soon) p{display:none}
+.game .cover{margin:0;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:0}
+.game .ico,.game p{display:none}
+.game .modes{display:flex;gap:4px;padding:0 12px 10px}
+.game .modes span{font-size:.61rem;padding:2px 6px}
 .game h2{padding:10px 12px 0;font-size:.98rem;line-height:1.2}
 .game .play{padding:6px 12px 12px;font-size:.84rem}
-.soon{aspect-ratio:1/1;justify-content:center;align-items:center;text-align:center;padding:12px;gap:6px}
-.soon .ico{width:44px;height:44px}
-.soon .ico svg{width:24px;height:24px}
-.soon h2{font-size:.9rem;padding:0}
-.soon p{font-size:.78rem}
 @media (max-width:360px){.game h2{font-size:.9rem}}
 </style>
 </head>
@@ -97,8 +92,9 @@ main{position:relative}
   </header>
 
   <div class="games" id="games"></div>
+  <p class="soon-note">Mais jogos em breve · novos jogos vão aparecer aqui.</p>
 
-  <p class="foot">Developed by Max :)</p>
+  <p class="foot">Developed by Max</p>
 </main>
 
 <script>
@@ -151,12 +147,7 @@ wrap.innerHTML = GAMES.map(g => `
     <p>${g.desc}</p>
     <div class="modes">${g.modos.map(m => `<span>${m}</span>`).join('')}</div>
     <div class="play"><span>Jogar</span><span aria-hidden="true">›</span></div>
-  </a>`).join('') + `
-  <div class="game soon" aria-hidden="true">
-    <div class="ico" style="--accent:var(--muted)"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M16 7v18M7 16h18"/></svg></div>
-    <h2>Mais jogos em breve</h2>
-    <p>Novos jogos vão aparecer aqui.</p>
-  </div>`;
+  </a>`).join('');
 
 /* Tema */
 const store = {
