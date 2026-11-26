@@ -8,9 +8,13 @@ const create = chess ? createXadrez : createDamas;
 const names = {p:'peão',n:'cavalo',b:'bispo',r:'torre',q:'dama',k:'rei'};
 const glyphs = {p:'♟',n:'♞',b:'♝',r:'♜',q:'♛',k:'♚'};
 const label = side => chess ? (side === 1 ? 'Brancas' : 'Pretas') : (side === 1 ? 'Vermelhas' : 'Pretas');
-try { document.documentElement.dataset.theme = localStorage.getItem('prisma_theme') || ''; } catch {}
+const store = {
+  get(key) { try { return localStorage.getItem(key) || ''; } catch { return ''; } },
+  set(key,value) { try { localStorage.setItem(key,value); } catch {} },
+};
+try { document.documentElement.dataset.theme = store.get('prisma_theme'); } catch {}
 let rules, mode, own, from, path, options, finished, lost, ply, timer, peer, conn, room, pending;
-let level = 'mid', score = [0,0], sound = true, roundActive = false;
+let level = store.get(family+'_level') || 'mid', score = [0,0], sound = store.get(family+'_sound') !== '0', roundActive = false;
 const buttons = [];
 const square = i => 'abcdefgh'[i % 8] + (8 - (i >> 3));
 const show = id => ['menu','lobby','game'].forEach(key => $(key).classList.toggle('hide',key !== id));
@@ -124,13 +128,20 @@ function renderScore() {
   $('score').innerHTML = `<span>Você <strong>${mode === 'online' && own === -1 ? score[1] : score[0]}</strong></span><span>×</span><span>Adversário <strong>${mode === 'online' && own === -1 ? score[0] : score[1]}</strong></span>`;
 }
 
+function toggleTheme() {
+  const current = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  store.set('prisma_theme',next);
+}
+
 function submit(move) {
   if (mode === 'online') {
     if (!conn?.open) return disconnected();
     conn.send({type:'move',ply,from:move.from,path:move.path,promotion:move.promotion ?? null});
   }
   apply(move);
-  if (sound) { try { const audio = new AudioContext(); const tone = audio.createOscillator(); tone.connect(audio.destination); tone.frequency.value = move.captured || move.victims.length ? 260 : 420; tone.start(); tone.stop(audio.currentTime + .07); tone.onended = () => audio.close(); } catch {} }
+  if (sound) { try { const audio = new AudioContext(); const tone = audio.createOscillator(); tone.connect(audio.destination); tone.frequency.value = move.captured || move.victims.length ? 260 : 420; tone.start(); tone.stop(audio.currentTime + .07); tone.onended = () => audio.close(); if (navigator.vibrate) navigator.vibrate(move.captured || move.victims.length ? [25,40,25] : 12); } catch {} }
   if (mode === 'ai' && finished === null) timer = setTimeout(ai,300);
 }
 
@@ -244,9 +255,12 @@ $('local').onclick = () => start('local');
 $('computer').onclick = () => { $('setup').classList.remove('hide'); document.querySelector('.modes').classList.add('hide'); };
 $('start-ai').onclick = () => start('ai');
 $('again').onclick = () => { roundActive = true; start(mode); };
-$('sound').onclick = () => { sound = !sound; $('sound').textContent = sound ? '🔊' : '🔇'; };
+$('sound').textContent = sound ? '🔊' : '🔇';
+$('sound').onclick = () => { sound = !sound; store.set(family+'_sound',sound ? '1' : '0'); $('sound').textContent = sound ? '🔊' : '🔇'; };
+$('theme-toggle').onclick = toggleTheme;
 document.querySelectorAll('[data-level]').forEach(button => button.onclick = () => {
   level = button.dataset.level;
+  store.set(family+'_level',level);
   document.querySelectorAll('[data-level]').forEach(item => item.classList.toggle('active',item === button));
 });
 $('online').onclick = () => lobby(false);
