@@ -8,14 +8,27 @@ const create = chess ? createXadrez : createDamas;
 const names = {p:'peão',n:'cavalo',b:'bispo',r:'torre',q:'dama',k:'rei'};
 const glyphs = {p:'♟',n:'♞',b:'♝',r:'♜',q:'♛',k:'♚'};
 const label = side => chess ? (side === 1 ? 'Brancas' : 'Pretas') : (side === 1 ? 'Vermelhas' : 'Pretas');
+const PEER_CONFIG = {
+  debug: 0,
+  config: {
+    iceServers: [
+      {urls: 'stun:stun.l.google.com:19302'},
+      {urls: 'stun:stun1.l.google.com:19302'},
+      {urls: 'stun:stun.cloudflare.com:3478'},
+      {urls: ['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp','turns:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject'},
+    ],
+    iceCandidatePoolSize: 4,
+  },
+};
 const store = {
   get(key) { try { return localStorage.getItem(key) || ''; } catch { return ''; } },
   set(key,value) { try { localStorage.setItem(key,value); } catch {} },
 };
 
 let rules, mode, own, from, path, options, finished, lost, ply, timer, peer, conn, room, pending;
-let wantMine = false, wantTheirs = false;
+let wantMine = false, wantTheirs = false, lastMove = null;
 let level = store.get(family+'_level') || 'mid', score = [0,0], sound = store.get(family+'_sound') !== '0', roundActive = false;
+let onlineNames = {1:'Anfitrião', '-1':'Convidado(a)'};
 const buttons = [];
 const square = i => 'abcdefgh'[i % 8] + (8 - (i >> 3));
 const show = id => ['menu','setup','lobby','game'].forEach(key => $(key).classList.toggle('hide',key !== id));
@@ -37,6 +50,7 @@ function start(nextMode, side = 1) {
   own = side;
   rules = create();
   ply = 0;
+  lastMove = null;
   wantMine = wantTheirs = false;
   lost = false;
   finished = null;
@@ -69,6 +83,7 @@ function render() {
     const active = i === (path.at(-1) ?? from);
     cell.classList.toggle('selected',active);
     cell.classList.toggle('target',targets.has(i));
+    cell.classList.toggle('last',lastMove?.includes(i));
     cell.setAttribute('aria-pressed',String(active));
     cell.setAttribute('aria-label',square(i)+(piece ? ', '+(names[piece.kind] || piece.kind)+' · '+label(piece.side) : '')+(targets.has(i) ? ', destino válido' : ''));
     cell.replaceChildren();
@@ -121,6 +136,7 @@ function select(i) {
 function apply(move) {
   rules.play(move);
   ply++;
+  lastMove = [move.from, move.path.at(-1)];
   resetSelection();
   finished = rules.result();
   if (finished !== null) {
@@ -135,12 +151,12 @@ function apply(move) {
 function renderScore() {
   $('score').innerHTML = `<span>Você <strong>${mode === 'online' && own === -1 ? score[1] : score[0]}</strong></span><span>×</span><span>Adversário <strong>${mode === 'online' && own === -1 ? score[0] : score[1]}</strong></span>`;
   const labels = $('score').querySelectorAll('span');
-  labels[0].firstChild.textContent = (mode === 'online' ? 'Você' : $('local-name').value.trim() || label(1))+' ';
+  labels[0].firstChild.textContent = (mode === 'online' ? onlineNames[own] : $('local-name').value.trim() || label(1))+' ';
   const firstSide = mode === 'online' ? own : 1;
   labels[0].classList.toggle('active',finished === null && !lost && rules.turn() === firstSide);
   labels[2].classList.toggle('active',finished === null && !lost && rules.turn() !== firstSide);
   labels[0].setAttribute('aria-label',label(firstSide)+': '+labels[0].textContent+' vitórias');
-  labels[2].firstChild.textContent = (mode === 'local' ? $('second-name').value.trim() || label(-1) : mode === 'ai' ? 'Computador' : 'Adversário')+' ';
+  labels[2].firstChild.textContent = (mode === 'local' ? $('second-name').value.trim() || label(-1) : mode === 'ai' ? 'Computador' : onlineNames[-own])+' ';
 }
 
 function toggleTheme() {
@@ -199,8 +215,14 @@ function wire(connection, side) {
     if (conn !== connection) return;
     clearTimeout(pending);
     start('online',side);
+    connection.send({type:'hello',name:onlineNames[side]});
   });
   connection.on('data',msg => {
+    if (msg?.type === 'hello' && conn === connection) {
+      onlineNames[-side] = String(msg.name || 'Adversário').trim().slice(0,14) || 'Adversário';
+      if (mode === 'online' && rules) renderScore();
+      return;
+    }
     if (msg?.type === 'rematch' && conn === connection && mode === 'online' && finished !== null && !lost) {
       wantTheirs = true;
       if (wantMine) rematch(); else $('message').textContent = 'O adversário quer revanche.';
@@ -225,28 +247,33 @@ function waitingRoom(waiting) {
   $('lobby-back').textContent = waiting ? '← Cancelar' : '← Voltar';
 }
 
-function lobby(join) {
+function lobby(join, fromInvite = false) {
   show('lobby');
   $('online-setup').classList.toggle('hide',join);
   $('create').disabled = false;
   $('join').classList.toggle('hide',!join);
   $('join-button').disabled = false;
+  $('join-code-wrap').classList.toggle('hide',!join || fromInvite);
+  $('join-badge').classList.toggle('hide',!join || !fromInvite);
+  $('join-badge').textContent = fromInvite ? $('code').value : '';
   waitingRoom(false);
   status(''); $('lobby-status').textContent='Sala pronta';
-  if (join) $('code').focus();
+  if (join) (fromInvite ? $('join-name') : $('code')).focus();
 }
 
 function connect(host) {
   cleanup();
   if (!window.Peer) { status('PeerJS indisponível. Recarregue a página.'); return; }
-  if (host) room = family+'-'+crypto.randomUUID().slice(0,8);
+  if (host) room = family+'-'+crypto.randomUUID().replaceAll('-','').slice(0,7);
   else room = $('code').value.trim().toLowerCase();
-  if (!new RegExp('^'+family+'-[a-z0-9]{8}$').test(room)) { status('Confira o código da sala.'); return; }
+  if (!new RegExp('^'+family+'-[a-z0-9]{7}$').test(room)) { status('Confira o código da sala.'); return; }
+  onlineNames = host
+    ? {1:$('player-name').value.trim().slice(0,14) || 'Anfitrião', '-1':'Convidado(a)'}
+    : {1:'Anfitrião', '-1':$('join-name').value.trim().slice(0,14) || 'Convidado(a)'};
   $('join-button').disabled = $('create').disabled = true;
   waitingRoom(false);
   status('Conectando...');
-  const config = {debug:0};
-  const current = peer = host ? new Peer(room,config) : new Peer(config);
+  const current = peer = host ? new Peer(room,PEER_CONFIG) : new Peer(PEER_CONFIG);
   const fail = text => {
     if (peer !== current) return;
     cleanup();
@@ -263,7 +290,7 @@ function connect(host) {
     waitingRoom(true);
     status('');
     $('online-setup').classList.add('hide');
-    $('lobby-info').textContent = $('player-name').value.trim() || 'Jogador 1';
+    $('lobby-info').textContent = onlineNames[1];
     $('room-code').textContent = room;
     $('lobby-status').textContent = 'Sala pronta';
   });
@@ -281,8 +308,11 @@ function connect(host) {
 }
 
 async function copy(text) {
-  try { await navigator.clipboard.writeText(text); status('Copiado!'); }
-  catch { status(text); }
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard indisponível');
+    await navigator.clipboard.writeText(text);
+    status('Copiado!');
+  } catch { prompt('Copie o texto abaixo:',text); }
 }
 
 let setupMode = 'ai';
@@ -317,7 +347,14 @@ $('online').onclick = () => lobby(false);
 $('show-join').onclick = () => lobby(true);
 $('create').onclick = () => connect(true);
 $('join').onsubmit = event => { event.preventDefault(); connect(false); };
-$('share-link').onclick = () => window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(location.origin+location.pathname+'#'+room),'_blank','noopener');
+$('share-link').onclick = async () => {
+  const link = location.origin+location.pathname+'#'+room;
+  if (navigator.share) {
+    try { await navigator.share({title:document.title,text:'Vamos jogar '+document.title+'?',url:link}); return; }
+    catch (error) { if (error?.name === 'AbortError') return; }
+  }
+  window.open('https://api.whatsapp.com/send?text='+encodeURIComponent('Vamos jogar '+document.title+'? '+link),'_blank','noopener');
+};
 $('copy-code').onclick = () => copy(room);
 $('copy-link').onclick = () => copy(location.origin+location.pathname+'#'+room);
 document.querySelectorAll('.back-menu').forEach(button => {
@@ -332,7 +369,7 @@ document.querySelectorAll('.back-menu').forEach(button => {
   };
 });
 window.addEventListener('pagehide',cleanup);
-if (new RegExp('^'+family+'-[a-z0-9]{8}$').test(location.hash.slice(1))) {
+if (new RegExp('^'+family+'-[a-z0-9]{7}$').test(location.hash.slice(1))) {
   $('code').value = location.hash.slice(1);
-  lobby(true);
+  lobby(true,true);
 }

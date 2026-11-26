@@ -8,10 +8,10 @@ Hub de jogos online para jogar com amigos ou contra o computador, direto no nave
 
 | Jogo | Descrição | Modos |
 |---|---|---|
-| **Batalha Naval** | Posicione sua frota e afunde os navios do adversário. | Online (P2P) e contra o computador |
-| **Connect Four** | Alinhe quatro peças antes do adversário. | Online (P2P) e contra o computador |
-| **Entre Pontos** | Ligue os pontos e feche mais quadrados que o oponente. | Online (P2P) e contra o computador |
-| **Jogo da Memória** | Encontre os pares antes do adversário e lembre onde cada carta estava. | Online (P2P) e contra o computador |
+| **Batalha Naval** | Posicione sua frota e afunde os navios do adversário. | Online (P2P), contra o computador e 2 jogadores locais |
+| **Connect Four** | Alinhe quatro peças antes do adversário. | Online (P2P), contra o computador e 2 jogadores locais |
+| **Entre Pontos** | Ligue os pontos e feche mais quadrados que o oponente. | Online (P2P), contra o computador e 2 jogadores locais |
+| **Jogo da Memória** | Encontre os pares antes do adversário e lembre onde cada carta estava. | Online (P2P), contra o computador e 2 jogadores locais |
 | **Damas** | Capture peças em sequência e promova suas peças a damas. | Online (P2P), contra o computador e 2 jogadores locais |
 | **Xadrez** | Proteja seu rei e dê xeque-mate. | Online (P2P), contra o computador e 2 jogadores locais |
 
@@ -41,6 +41,18 @@ prisma/
 ├── jogo-da-memoria/
 │   ├── index.html
 │   └── img/
+├── damas/
+│   ├── index.html
+│   └── img/
+├── xadrez/
+│   ├── index.html
+│   ├── img/
+│   └── vendor/             # chess.js incluído localmente
+├── tabuleiro/              # Base compartilhada de Damas e Xadrez
+│   ├── damas.mjs
+│   ├── xadrez.mjs
+│   ├── ui.mjs
+│   └── prisma.css
 └── MELHORIAS.md            # Histórico de melhorias e observações técnicas
 ```
 
