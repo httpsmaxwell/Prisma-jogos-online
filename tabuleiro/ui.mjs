@@ -372,4 +372,5 @@ window.addEventListener('pagehide',cleanup);
 if (new RegExp('^'+family+'-[a-z0-9]{7}$').test(location.hash.slice(1))) {
   $('code').value = location.hash.slice(1);
   lobby(true,true);
+  document.documentElement.classList.remove('invite-link');
 }

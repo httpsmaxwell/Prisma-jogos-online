@@ -25,8 +25,10 @@
 <link rel="apple-touch-icon" href="../img/apple-touch-icon.jpg">
 <script>
 try{var t=localStorage.getItem('prisma_theme');if(t)document.documentElement.dataset.theme=t;var d=t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches;document.getElementById('meta-theme').content=d?'#181817':'#faf8f3';}catch(e){}
+try{if(/^xadrez-[a-z0-9]{7}$/.test(location.hash.slice(1).toLowerCase()))document.documentElement.classList.add('invite-link');}catch(e){}
 </script>
 <link rel="stylesheet" href="../tabuleiro/prisma.css">
+<style>html.invite-link #menu{display:none!important}html.invite-link #lobby{display:block!important}html.invite-link #lobby #online-setup,html.invite-link #lobby #invite{display:none!important}html.invite-link #lobby #join{display:block!important}html.invite-link #lobby #join-code-wrap{display:none!important}</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js" async></script>
 </head>
 <body>
@@ -56,7 +58,7 @@ try{var t=localStorage.getItem('prisma_theme');if(t)document.documentElement.dat
       <span class="badge hide" id="room-badge"><span class="pulse" aria-hidden="true"></span><span id="lobby-status">Sala pronta</span></span>
       <span class="badge hide" id="join-badge"></span>
     </div>
-    <h1 id="lobby-title" class="setup-title">Partida Online</h1>
+    <h1 id="lobby-title" class="setup-title">Entrar na sala</h1>
     <div id="online-setup">
       <label class="fld" for="player-name">Seu nome</label><input id="player-name" maxlength="14" placeholder="Ex: Max">
       <button class="full" id="create">Criar sala</button>
