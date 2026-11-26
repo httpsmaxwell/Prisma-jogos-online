@@ -12,6 +12,13 @@
     <div class="card">
       <h1>Damas</h1>
       <p class="sub">Capture as peças adversárias no tabuleiro de 8×8.</p>
+      <div id="setup" class="setup hide">
+        <p class="fld">Dificuldade do computador</p>
+        <div class="difficulty" role="group" aria-label="Dificuldade">
+          <button type="button" data-level="easy">Fácil</button><button type="button" data-level="mid">Médio</button><button type="button" data-level="hard">Difícil</button>
+        </div>
+        <button type="button" id="start-ai" class="full">Jogar</button>
+      </div>
       <div class="modes">
         <button class="mc" id="online"><span class="mc-txt"><strong>Online</strong><span class="d">Com amigo via link ou código</span></span>›</button>
         <button class="mc" id="computer"><span class="mc-txt"><strong>Contra o computador</strong><span class="d">Treine suas jogadas</span></span>›</button>
@@ -36,7 +43,8 @@
     <p id="lobby-status" role="status"></p>
   </section>
   <section id="game" class="hide">
-    <div class="nav-row"><button class="sec back-menu">← Sair</button><span id="mode"></span></div>
+    <div class="nav-row"><button class="sec back-menu">← Sair</button><span id="mode"></span><button class="sec sound" aria-label="Alternar som" id="sound">🔊</button></div>
+    <div id="score" class="score"></div>
     <p id="message" role="status"></p>
     <div id="board" aria-label="Tabuleiro" role="group"></div>
     <div id="promotion" class="hide" role="group" aria-label="Promoção do peão"></div>

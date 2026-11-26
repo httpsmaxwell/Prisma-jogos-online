@@ -59,3 +59,12 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:18px}
 .disc{width:72%;aspect-ratio:1;border:3px double #fff9;display:grid;place-items:center;border-radius:50%;background:#252321;color:#fff;font-size:.48em;box-shadow:0 2px 2px #0006}
 .disc.light-piece{background:#b52e2e}
 #promotion{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
+.setup{display:grid;gap:10px;margin-bottom:12px}
+.score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:10px 0;color:var(--muted);font-size:.84rem}
+.score strong{color:var(--fg);font-size:1.05rem}
+.score span:last-child{text-align:right}
+.difficulty{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.difficulty button{min-height:40px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.difficulty button.active{border-color:var(--p1);color:var(--p1);background:var(--card)}
+.sound{min-width:42px;padding:8px}
+#game .board-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:8px}

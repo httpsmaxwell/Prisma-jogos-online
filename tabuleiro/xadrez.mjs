@@ -13,6 +13,8 @@ export function createXadrez() {
     })),
     play(m) { chess.move({from:square(m.from),to:square(m.path[0]),promotion:m.promotion}); },
     check: () => chess.inCheck(),
+    fen: () => chess.fen(),
+    undo: () => chess.undo(),
     result: () => chess.isCheckmate() ? -turn() : chess.isDraw() ? 0 : null,
   };
 }

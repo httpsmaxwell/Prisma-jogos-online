@@ -37,7 +37,7 @@ function chains(board, from, side) {
 }
 
 export function createDamas() {
-  let side = 1, quiet = 0;
+  let side = 1, quiet = 0, previous = null;
   const board = Array.from({length:64}, (_,i) =>
     ((i >> 3) + i % 8) % 2 ? (i < 24 ? -1 : i >= 40 ? 1 : 0) : 0);
   const seen = new Map();
@@ -62,9 +62,11 @@ export function createDamas() {
       board[from] = 0;
       for (const victim of victims) board[victim] = 0;
       board[to] = to >> 3 === (side === 1 ? 0 : 7) ? side * 2 : piece;
+      previous = key();
       quiet = victims.length || Math.abs(piece) === 1 ? 0 : quiet+1;
       side = -side;
-      seen.set(key(),(seen.get(key()) || 0)+1);
+      const position = key();
+      seen.set(position,(seen.get(position) || 0)+1);
     },
     result() {
       if (!moves().length) return -side;

@@ -10,6 +10,7 @@ const glyphs = {p:'♟',n:'♞',b:'♝',r:'♜',q:'♛',k:'♚'};
 const label = side => chess ? (side === 1 ? 'Brancas' : 'Pretas') : (side === 1 ? 'Vermelhas' : 'Pretas');
 try { document.documentElement.dataset.theme = localStorage.getItem('prisma_theme') || ''; } catch {}
 let rules, mode, own, from, path, options, finished, lost, ply, timer, peer, conn, room, pending;
+let level = 'mid', score = [0,0], sound = true, roundActive = false;
 const buttons = [];
 const square = i => 'abcdefgh'[i % 8] + (8 - (i >> 3));
 const show = id => ['menu','lobby','game'].forEach(key => $(key).classList.toggle('hide',key !== id));
@@ -33,6 +34,8 @@ function start(nextMode, side = 1) {
   ply = 0;
   lost = false;
   finished = null;
+  if (!roundActive) score = [0,0];
+  roundActive = true;
   resetSelection();
   $('mode').textContent = {local:'2 jogadores',ai:'Computador',online:'Online · '+label(own)}[mode];
   show('game');
@@ -108,7 +111,17 @@ function apply(move) {
   ply++;
   resetSelection();
   finished = rules.result();
+  if (finished !== null) {
+    if (finished === 1) score[0]++;
+    if (finished === -1) score[1]++;
+    roundActive = false;
+  }
   render();
+  renderScore();
+}
+
+function renderScore() {
+  $('score').innerHTML = `<span>Você <strong>${mode === 'online' && own === -1 ? score[1] : score[0]}</strong></span><span>×</span><span>Adversário <strong>${mode === 'online' && own === -1 ? score[0] : score[1]}</strong></span>`;
 }
 
 function submit(move) {
@@ -117,6 +130,7 @@ function submit(move) {
     conn.send({type:'move',ply,from:move.from,path:move.path,promotion:move.promotion ?? null});
   }
   apply(move);
+  if (sound) { try { const audio = new AudioContext(); const tone = audio.createOscillator(); tone.connect(audio.destination); tone.frequency.value = move.captured || move.victims.length ? 260 : 420; tone.start(); tone.stop(audio.currentTime + .07); tone.onended = () => audio.close(); } catch {} }
   if (mode === 'ai' && finished === null) timer = setTimeout(ai,300);
 }
 
@@ -124,7 +138,7 @@ function ai() {
   const value = {p:1,n:3,b:3,r:5,q:9};
   const ranked = rules.moves().map(move => ({
     move,
-    score: (value[move.captured] || move.victims.length) * 2 + (move.promotion ? value[move.promotion] : 0) + Math.random(),
+    score: (value[move.captured] || move.victims.length) * 2 + (move.promotion ? value[move.promotion] : 0) + Math.random() * (level === 'easy' ? 20 : level === 'mid' ? 5 : 1),
   }));
   ranked.sort((a,b) => b.score-a.score);
   apply(ranked[0].move);
@@ -227,8 +241,14 @@ async function copy(text) {
 }
 
 $('local').onclick = () => start('local');
-$('computer').onclick = () => start('ai');
-$('again').onclick = () => start(mode);
+$('computer').onclick = () => { $('setup').classList.remove('hide'); document.querySelector('.modes').classList.add('hide'); };
+$('start-ai').onclick = () => start('ai');
+$('again').onclick = () => { roundActive = true; start(mode); };
+$('sound').onclick = () => { sound = !sound; $('sound').textContent = sound ? '🔊' : '🔇'; };
+document.querySelectorAll('[data-level]').forEach(button => button.onclick = () => {
+  level = button.dataset.level;
+  document.querySelectorAll('[data-level]').forEach(item => item.classList.toggle('active',item === button));
+});
 $('online').onclick = () => lobby(false);
 $('show-join').onclick = () => lobby(true);
 $('create').onclick = () => connect(true);
@@ -238,6 +258,10 @@ $('copy-link').onclick = () => copy(location.origin+location.pathname+'#'+room);
 document.querySelectorAll('.back-menu').forEach(button => {
   button.onclick = () => {
     cleanup();
+    roundActive = false;
+    $('score').replaceChildren();
+    $('setup').classList.add('hide');
+    document.querySelector('.modes').classList.remove('hide');
     history.replaceState(null,'',location.pathname+location.search);
     show('menu');
   };
