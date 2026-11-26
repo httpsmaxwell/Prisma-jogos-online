@@ -12,6 +12,8 @@ Hub de jogos online para jogar com amigos ou contra o computador, direto no nave
 | **Connect Four** | Alinhe quatro peças antes do adversário. | Online (P2P) e contra o computador |
 | **Entre Pontos** | Ligue os pontos e feche mais quadrados que o oponente. | Online (P2P) e contra o computador |
 | **Jogo da Memória** | Encontre os pares antes do adversário e lembre onde cada carta estava. | Online (P2P) e contra o computador |
+| **Damas** | Capture peças em sequência e promova suas peças a damas. | Online (P2P), contra o computador e 2 jogadores locais |
+| **Xadrez** | Proteja seu rei e dê xeque-mate. | Online (P2P), contra o computador e 2 jogadores locais |
 
 ## Como jogar online
 
@@ -42,11 +44,11 @@ prisma/
 └── MELHORIAS.md            # Histórico de melhorias e observações técnicas
 ```
 
-Cada jogo é um arquivo HTML independente, com CSS e JavaScript embutidos. Não há etapa de build nem dependências locais para instalar.
+Cada jogo tem sua própria página HTML. Damas e Xadrez compartilham CSS e módulos JavaScript em `tabuleiro/` e devem ser abertos por HTTP local. Não há etapa de build nem dependências para instalar.
 
 ## Como rodar localmente
 
-Como é um site estático, basta abrir o `index.html` no navegador. Para testar o modo online entre duas abas ou dispositivos, use um servidor local, por exemplo:
+Para abrir todos os jogos e testar o modo online entre duas abas ou dispositivos, use um servidor HTTP local, por exemplo:
 
 ```bash
 npx serve .

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xadrez · Prisma</title>
+<link rel="icon" href="../img/icon.jpg">
+<link rel="stylesheet" href="../tabuleiro/prisma.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js" async></script>
+<main data-game="xadrez">
+  <section id="menu">
+    <a class="back" href="../index.html">← Prisma</a>
+    <div class="card">
+      <h1>Xadrez</h1>
+      <p class="sub">Proteja seu rei e dê xeque-mate.</p>
+      <div class="modes">
+        <button class="mc" id="online"><span class="mc-txt"><strong>Online</strong><span class="d">Com amigo via link ou código</span></span>›</button>
+        <button class="mc" id="computer"><span class="mc-txt"><strong>Contra o computador</strong><span class="d">Treine suas jogadas</span></span>›</button>
+        <button class="mc" id="local"><span class="mc-txt"><strong>2 jogadores</strong><span class="d">No mesmo aparelho</span></span>›</button>
+      </div>
+      <button class="lk" id="show-join">Tenho um código de sala</button>
+    </div>
+  </section>
+  <section id="lobby" class="hide card">
+    <button class="ghost back-menu">← Voltar</button>
+    <h1>Partida online</h1>
+    <button class="full" id="create">Criar sala</button>
+    <div id="invite" class="hide">
+      <button class="full sec room" id="copy-code" aria-label="Copiar código da sala"></button>
+      <button class="full sec" id="copy-link">Copiar link</button>
+    </div>
+    <form id="join" class="hide">
+      <label for="code" class="fld">Código da sala</label>
+      <input id="code" required autocomplete="off" spellcheck="false">
+      <button class="full" id="join-button">Entrar</button>
+    </form>
+    <p id="lobby-status" role="status"></p>
+  </section>
+  <section id="game" class="hide">
+    <div class="nav-row"><button class="sec back-menu">← Sair</button><span id="mode"></span></div>
+    <p id="message" role="status"></p>
+    <div id="board" aria-label="Tabuleiro" role="group"></div>
+    <div id="promotion" class="hide" role="group" aria-label="Promoção do peão"></div>
+    <button class="full sec hide" id="again">Revanche</button>
+  </section>
+  <footer>Developed by Max</footer>
+</main>
+<script type="module" src="../tabuleiro/ui.mjs"></script>
+</html>
