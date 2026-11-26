@@ -9,17 +9,9 @@
 <main data-game="damas">
   <section id="menu">
     <a class="back" href="../index.html">← Prisma</a>
-    <button class="sec theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema">◐</button>
     <div class="card">
       <h1>Damas</h1>
       <p class="sub">Capture as peças adversárias no tabuleiro de 8×8.</p>
-      <div id="setup" class="setup hide">
-        <p class="fld">Dificuldade do computador</p>
-        <div class="difficulty" role="group" aria-label="Dificuldade">
-        <button type="button" data-level="easy">Fácil</button><button type="button" data-level="mid">Médio</button><button type="button" data-level="hard">Difícil</button>
-        </div>
-        <button type="button" id="start-ai" class="full">Jogar</button>
-      </div>
       <div class="modes">
         <button class="mc" id="online"><span class="mc-txt"><strong>Online</strong><span class="d">Com amigo via link ou código</span></span>›</button>
         <button class="mc" id="computer"><span class="mc-txt"><strong>Contra o computador</strong><span class="d">Treine suas jogadas</span></span>›</button>
@@ -28,27 +20,39 @@
       <button class="lk" id="show-join">Tenho um código de sala</button>
     </div>
   </section>
+  <section id="setup" class="hide card">
+    <button class="ghost back-menu">← Voltar</button><h1 class="setup-title">Contra o Computador</h1>
+    <label class="fld">Dificuldade</label><div class="difficulty"><button data-level="easy">Fácil</button><button data-level="mid">Médio</button><button data-level="hard">Difícil</button></div>
+    <button id="start-ai" class="full">Jogar</button>
+  </section>
   <section id="lobby" class="hide card">
     <button class="ghost back-menu">← Voltar</button>
-    <h1>Partida online</h1>
-    <button class="full" id="create">Criar sala</button>
+    <h1 id="lobby-title" class="setup-title">Partida Online</h1>
+    <div id="online-setup">
+      <label class="fld" for="player-name">Seu nome</label>
+      <input id="player-name" maxlength="14" placeholder="Ex: Max">
+      <button class="full" id="create">Criar sala</button>
+    </div>
     <div id="invite" class="hide">
-      <button class="full sec room" id="copy-code" aria-label="Copiar código da sala"></button>
-      <button class="full sec" id="copy-link">Copiar link</button>
+      <span class="badge"><span class="pulse"></span><span id="lobby-status">Sala pronta</span></span>
+      <h2 class="center">Aguardando amigo</h2>
+      <p class="sub" id="lobby-info"></p>
+      <button class="room full sec" id="copy-code" aria-label="Copiar código da sala"></button>
+      <div class="stack"><button class="wa" id="share-link">Enviar no WhatsApp</button><button class="sec" id="copy-link">Copiar link</button></div>
+      <p class="hint">Mantenha esta tela aberta até seu amigo entrar.</p>
     </div>
     <form id="join" class="hide">
-      <label for="code" class="fld">Código da sala</label>
-      <input id="code" required autocomplete="off" spellcheck="false">
-      <button class="full" id="join-button">Entrar</button>
+      <label class="fld" for="code">Código da sala</label><input id="code" placeholder="damas-xxxxxxxx" autocomplete="off">
+      <label class="fld" for="join-name">Seu nome</label><input id="join-name" maxlength="14" placeholder="Como quer ser chamado(a)?">
+      <button class="full" id="join-button">Entrar</button><p id="lobby-status-join" role="status"></p>
     </form>
-    <p id="lobby-status" role="status"></p>
   </section>
   <section id="game" class="hide">
     <div class="nav-row"><button class="sec back-menu">← Sair</button><span id="mode"></span><button class="sec sound" aria-label="Alternar som" id="sound">🔊</button></div>
     <div id="score" class="score"></div>
     <p id="message" role="status"></p>
     <div id="board" aria-label="Tabuleiro" role="group"></div>
-    <div id="promotion" class="hide" role="group" aria-label="Promoção do peão"></div>
+    <div id="promotion" class="hide" role="group" aria-label="Promoção"></div>
     <button class="full sec hide" id="again">Revanche</button>
   </section>
   <footer>Developed by Max</footer>

@@ -17,9 +17,9 @@ let rules, mode, own, from, path, options, finished, lost, ply, timer, peer, con
 let level = store.get(family+'_level') || 'mid', score = [0,0], sound = store.get(family+'_sound') !== '0', roundActive = false;
 const buttons = [];
 const square = i => 'abcdefgh'[i % 8] + (8 - (i >> 3));
-const show = id => ['menu','lobby','game'].forEach(key => $(key).classList.toggle('hide',key !== id));
+const show = id => ['menu','setup','lobby','game'].forEach(key => $(key).classList.toggle('hide',key !== id));
 const canPlay = () => finished === null && !lost && (mode === 'local' || rules.turn() === own);
-const status = text => { $('lobby-status').textContent = text; };
+const status = text => { $('lobby-status-join').textContent = text; };
 
 for (let i = 0; i < 64; i++) {
   const cell = document.createElement('button');
@@ -197,12 +197,12 @@ function wire(connection, side) {
 
 function lobby(join) {
   show('lobby');
-  $('create').classList.toggle('hide',join);
+  $('online-setup').classList.toggle('hide',join);
   $('create').disabled = false;
   $('join').classList.toggle('hide',!join);
   $('join-button').disabled = false;
   $('invite').classList.add('hide');
-  status('');
+  status(''); $('lobby-status').textContent='Sala pronta';
   if (join) $('code').focus();
 }
 
@@ -230,8 +230,10 @@ function connect(host) {
     if (!host) { wire(current.connect(room,{reliable:true}),-1); return; }
     clearTimeout(pending);
     $('invite').classList.remove('hide');
+    $('online-setup').classList.add('hide');
+    $('lobby-info').textContent = $('player-name').value.trim() || 'Jogador 1';
     $('copy-code').textContent = room;
-    status('Sala pronta. Aguardando amigo…');
+    $('lobby-status').textContent = 'Sala pronta';
   });
   current.on('connection',connection => {
     if (host && peer === current && !conn && $('game').classList.contains('hide')) wire(connection,1);
@@ -252,12 +254,12 @@ async function copy(text) {
 }
 
 $('local').onclick = () => start('local');
-$('computer').onclick = () => { $('setup').classList.remove('hide'); document.querySelector('.modes').classList.add('hide'); };
+$('computer').onclick = () => show('setup');
 $('start-ai').onclick = () => start('ai');
 $('again').onclick = () => { roundActive = true; start(mode); };
 $('sound').textContent = sound ? '🔊' : '🔇';
 $('sound').onclick = () => { sound = !sound; store.set(family+'_sound',sound ? '1' : '0'); $('sound').textContent = sound ? '🔊' : '🔇'; };
-$('theme-toggle').onclick = toggleTheme;
+if ($('theme-toggle')) $('theme-toggle').onclick = toggleTheme;
 document.querySelectorAll('[data-level]').forEach(button => button.onclick = () => {
   level = button.dataset.level;
   store.set(family+'_level',level);
@@ -267,6 +269,7 @@ $('online').onclick = () => lobby(false);
 $('show-join').onclick = () => lobby(true);
 $('create').onclick = () => connect(true);
 $('join').onsubmit = event => { event.preventDefault(); connect(false); };
+$('share-link').onclick = () => window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(location.origin+location.pathname+'#'+room),'_blank','noopener');
 $('copy-code').onclick = () => copy(room);
 $('copy-link').onclick = () => copy(location.origin+location.pathname+'#'+room);
 document.querySelectorAll('.back-menu').forEach(button => {
