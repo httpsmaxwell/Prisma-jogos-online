@@ -31,22 +31,23 @@ try{var t=localStorage.getItem('prisma_theme');if(t)document.documentElement.dat
 </head>
 <body>
 <main data-game="xadrez">
-  <section id="menu">
+  <section id="menu" class="card">
     <div class="nav-row"><a class="back" href="../index.html">← Prisma</a><button class="sec theme-toggle" type="button" aria-label="Alternar tema">🌓</button></div>
-    <div class="card">
-      <h1>Xadrez</h1>
+    <div>
+      <div class="brand"><span aria-hidden="true">♞</span><h1>Xadrez</h1></div>
       <p class="sub">Proteja seu rei e dê xeque-mate.</p>
       <div class="modes">
         <button class="mc" id="online"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="mc-txt"><strong>Online</strong><span class="d">Com amigo via link ou código</span></span><span class="chev" aria-hidden="true">›</span></button>
-        <button class="mc" id="computer"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 2v6"/><circle cx="12" cy="2" r="1"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg></span><span class="mc-txt"><strong>Contra o computador</strong><span class="d">Treine suas jogadas</span></span><span class="chev" aria-hidden="true">›</span></button>
-        <button class="mc" id="local"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="mc-txt"><strong>2 jogadores</strong><span class="d">No mesmo aparelho</span></span><span class="chev" aria-hidden="true">›</span></button>
+        <button class="mc" id="computer"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 2v6"/><circle cx="12" cy="2" r="1"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg></span><span class="mc-txt"><strong>Contra o computador</strong><span class="d">Fácil, médio ou difícil</span></span><span class="chev" aria-hidden="true">›</span></button>
+        <button class="mc" id="local"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="mc-txt"><strong>2 jogadores</strong><span class="d">Localmente no mesmo aparelho</span></span><span class="chev" aria-hidden="true">›</span></button>
       </div>
       <button class="lk" id="show-join">Tenho um código de sala</button>
     </div>
   </section>
   <section id="setup" class="hide card">
-    <button class="ghost back-menu">← Voltar</button><h1 class="setup-title">Contra o Computador</h1>
-    <label class="fld">Dificuldade</label><div class="difficulty"><button data-level="easy">Fácil</button><button data-level="mid">Médio</button><button data-level="hard">Difícil</button></div>
+    <div class="nav-row"><button class="ghost back-menu">← Voltar</button></div><h1 id="setup-heading" class="setup-title">Contra o Computador</h1>
+    <div class="r2"><div><label class="fld" for="local-name">Jogador 1</label><input id="local-name" maxlength="14" placeholder="Ex: Max"></div><div id="second-player" class="hide"><label class="fld" for="second-name">Jogador 2</label><input id="second-name" maxlength="14" placeholder="Ex: Jogador 2"></div></div>
+    <div id="difficulty-setup"><label class="fld">Dificuldade</label><div class="difficulty"><button data-level="easy">Fácil</button><button data-level="mid">Médio</button><button data-level="hard">Difícil</button></div></div>
     <button id="start-ai" class="full">Jogar</button>
   </section>
   <section id="lobby" class="hide card">

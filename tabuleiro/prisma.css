@@ -83,3 +83,9 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:18px}
 .stack{display:grid;gap:9px;margin-top:14px}
 .hint{margin:14px 0 0;text-align:center;color:var(--muted);font-size:.8rem;line-height:1.4;overflow-wrap:anywhere}
 #lobby-status-join:empty{display:none}
+
+.brand{flex-direction:row;justify-content:center;gap:10px;margin-bottom:6px}
+.brand>span{font-size:26px;line-height:1;color:var(--p1)}
+#setup .r2:has(#second-player.hide){grid-template-columns:1fr}
+#score>span:not(:nth-child(2)){padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);overflow-wrap:anywhere}
+#game .nav-row{flex-wrap:wrap}

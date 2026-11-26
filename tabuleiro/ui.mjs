@@ -45,6 +45,7 @@ function start(nextMode, side = 1) {
   resetSelection();
   $('mode').textContent = {local:'2 jogadores',ai:'Computador',online:'Online · '+label(own)}[mode];
   show('game');
+  renderScore();
   render();
 }
 
@@ -130,6 +131,9 @@ function apply(move) {
 
 function renderScore() {
   $('score').innerHTML = `<span>Você <strong>${mode === 'online' && own === -1 ? score[1] : score[0]}</strong></span><span>×</span><span>Adversário <strong>${mode === 'online' && own === -1 ? score[0] : score[1]}</strong></span>`;
+  const labels = $('score').querySelectorAll('span');
+  labels[0].firstChild.textContent = (mode === 'online' ? 'Você' : $('local-name').value.trim() || label(1))+' ';
+  labels[2].firstChild.textContent = (mode === 'local' ? $('second-name').value.trim() || label(-1) : mode === 'ai' ? 'Computador' : 'Adversário')+' ';
 }
 
 function toggleTheme() {
@@ -274,9 +278,17 @@ async function copy(text) {
   catch { status(text); }
 }
 
-$('local').onclick = () => start('local');
-$('computer').onclick = () => show('setup');
-$('start-ai').onclick = () => start('ai');
+let setupMode = 'ai';
+function configure(next) {
+  setupMode = next;
+  $('setup-heading').textContent = next === 'local' ? '2 Jogadores' : 'Contra o Computador';
+  $('second-player').classList.toggle('hide',next !== 'local');
+  $('difficulty-setup').classList.toggle('hide',next === 'local');
+  show('setup');
+}
+$('local').onclick = () => configure('local');
+$('computer').onclick = () => configure('ai');
+$('start-ai').onclick = () => start(setupMode);
 function rematch() { roundActive = true; start('online',-own); }
 $('again').onclick = () => {
   if (mode !== 'online') { roundActive = true; start(mode); return; }
@@ -293,6 +305,7 @@ document.querySelectorAll('[data-level]').forEach(button => button.onclick = () 
   store.set(family+'_level',level);
   document.querySelectorAll('[data-level]').forEach(item => item.classList.toggle('active',item === button));
 });
+document.querySelectorAll('[data-level]').forEach(button => button.classList.toggle('active',button.dataset.level === level));
 $('online').onclick = () => lobby(false);
 $('show-join').onclick = () => lobby(true);
 $('create').onclick = () => connect(true);
