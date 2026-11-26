@@ -69,3 +69,7 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:18px}
 .difficulty button.active{border-color:var(--p1);color:var(--p1);background:var(--card)}
 .sound{min-width:42px;padding:8px}
 #game .board-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:8px}
+
+.nav-row .theme-toggle{margin:0}
+#board button.last{box-shadow:inset 0 0 0 3px #f59e0b}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

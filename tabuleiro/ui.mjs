@@ -12,8 +12,9 @@ const store = {
   get(key) { try { return localStorage.getItem(key) || ''; } catch { return ''; } },
   set(key,value) { try { localStorage.setItem(key,value); } catch {} },
 };
-try { document.documentElement.dataset.theme = store.get('prisma_theme'); } catch {}
+
 let rules, mode, own, from, path, options, finished, lost, ply, timer, peer, conn, room, pending;
+let wantMine = false, wantTheirs = false;
 let level = store.get(family+'_level') || 'mid', score = [0,0], sound = store.get(family+'_sound') !== '0', roundActive = false;
 const buttons = [];
 const square = i => 'abcdefgh'[i % 8] + (8 - (i >> 3));
@@ -36,6 +37,7 @@ function start(nextMode, side = 1) {
   own = side;
   rules = create();
   ply = 0;
+  wantMine = wantTheirs = false;
   lost = false;
   finished = null;
   if (!roundActive) score = [0,0];
@@ -78,10 +80,12 @@ function render() {
   });
   $('message').textContent = lost ? 'A conexão com o outro jogador foi encerrada.'
     : finished === 0 ? 'Empate.'
-    : finished !== null ? label(finished)+' venceram!'
+    : finished !== null ? (mode === 'local' ? label(finished)+' venceram!' : finished === own ? 'Você venceu! 🎉' : 'Você perdeu.')
     : path.length ? 'Continue a captura.'
-    : 'Vez das '+label(rules.turn()).toLowerCase()+(rules.check?.() ? ' · Xeque!' : '.');
-  $('again').classList.toggle('hide',finished === null || lost || mode === 'online');
+    : (mode !== 'local' && rules.turn() === own ? 'Sua vez' : 'Vez das '+label(rules.turn()).toLowerCase())+(rules.check?.() ? ' · Xeque!' : '.');
+  $('again').classList.toggle('hide',finished === null || lost);
+  $('again').textContent = mode === 'online' ? (wantMine ? 'Aguardando adversário...' : 'Pedir revanche') : 'Revanche';
+  $('again').disabled = wantMine;
 }
 
 function select(i) {
@@ -133,6 +137,8 @@ function toggleTheme() {
   const next = current === 'dark' ? 'light' : 'dark';
   document.documentElement.dataset.theme = next;
   store.set('prisma_theme',next);
+  const meta = document.getElementById('meta-theme');
+  if (meta) meta.content = next === 'dark' ? '#181817' : '#faf8f3';
 }
 
 function submit(move) {
@@ -184,6 +190,11 @@ function wire(connection, side) {
     start('online',side);
   });
   connection.on('data',msg => {
+    if (msg?.type === 'rematch' && conn === connection && mode === 'online' && finished !== null && !lost) {
+      wantTheirs = true;
+      if (wantMine) rematch(); else $('message').textContent = 'O adversário quer revanche.';
+      return;
+    }
     if (conn !== connection || !rules || mode !== 'online' || lost || finished !== null || rules.turn() === own ||
         msg?.type !== 'move' || msg.ply !== ply || !Array.isArray(msg.path)) return;
     const move = rules.moves().find(m => m.from === msg.from && (m.promotion ?? null) === (msg.promotion ?? null) &&
@@ -256,10 +267,17 @@ async function copy(text) {
 $('local').onclick = () => start('local');
 $('computer').onclick = () => show('setup');
 $('start-ai').onclick = () => start('ai');
-$('again').onclick = () => { roundActive = true; start(mode); };
+function rematch() { roundActive = true; start('online',-own); }
+$('again').onclick = () => {
+  if (mode !== 'online') { roundActive = true; start(mode); return; }
+  if (!conn?.open) return disconnected();
+  wantMine = true;
+  conn.send({type:'rematch'});
+  if (wantTheirs) rematch(); else render();
+};
 $('sound').textContent = sound ? '🔊' : '🔇';
 $('sound').onclick = () => { sound = !sound; store.set(family+'_sound',sound ? '1' : '0'); $('sound').textContent = sound ? '🔊' : '🔇'; };
-if ($('theme-toggle')) $('theme-toggle').onclick = toggleTheme;
+document.querySelectorAll('.theme-toggle').forEach(button => button.onclick = toggleTheme);
 document.querySelectorAll('[data-level]').forEach(button => button.onclick = () => {
   level = button.dataset.level;
   store.set(family+'_level',level);

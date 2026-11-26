@@ -1,21 +1,45 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" id="meta-theme" content="#faf8f3">
 <title>Xadrez · Prisma</title>
-<link rel="icon" href="../img/icon.jpg">
+<meta name="description" content="Bora jogar? Proteja seu rei e dê xeque-mate!">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Prisma">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Xadrez · Prisma">
+<meta property="og:description" content="Bora jogar? Proteja seu rei e dê xeque-mate!">
+<meta property="og:url" content="https://prisma-io.netlify.app/xadrez/index.html">
+<meta property="og:image" content="https://prisma-io.netlify.app/xadrez/img/og.jpg">
+<meta property="og:image:secure_url" content="https://prisma-io.netlify.app/xadrez/img/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1376">
+<meta property="og:image:height" content="768">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Xadrez · Prisma">
+<meta name="twitter:description" content="Bora jogar? Proteja seu rei e dê xeque-mate!">
+<meta name="twitter:image" content="https://prisma-io.netlify.app/xadrez/img/og.jpg">
+<link rel="icon" type="image/jpeg" href="../img/icon.jpg">
+<link rel="apple-touch-icon" href="../img/apple-touch-icon.jpg">
+<script>
+try{var t=localStorage.getItem('prisma_theme');if(t)document.documentElement.dataset.theme=t;var d=t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches;document.getElementById('meta-theme').content=d?'#181817':'#faf8f3';}catch(e){}
+</script>
 <link rel="stylesheet" href="../tabuleiro/prisma.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js" async></script>
+</head>
+<body>
 <main data-game="xadrez">
   <section id="menu">
-    <a class="back" href="../index.html">← Prisma</a>
+    <div class="nav-row"><a class="back" href="../index.html">← Prisma</a><button class="sec theme-toggle" type="button" aria-label="Alternar tema">🌓</button></div>
     <div class="card">
       <h1>Xadrez</h1>
       <p class="sub">Proteja seu rei e dê xeque-mate.</p>
       <div class="modes">
-        <button class="mc" id="online"><span class="mc-txt"><strong>Online</strong><span class="d">Com amigo via link ou código</span></span>›</button>
-        <button class="mc" id="computer"><span class="mc-txt"><strong>Contra o computador</strong><span class="d">Treine suas jogadas</span></span>›</button>
-        <button class="mc" id="local"><span class="mc-txt"><strong>2 jogadores</strong><span class="d">No mesmo aparelho</span></span>›</button>
+        <button class="mc" id="online"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="mc-txt"><strong>Online</strong><span class="d">Com amigo via link ou código</span></span><span class="chev" aria-hidden="true">›</span></button>
+        <button class="mc" id="computer"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 2v6"/><circle cx="12" cy="2" r="1"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg></span><span class="mc-txt"><strong>Contra o computador</strong><span class="d">Treine suas jogadas</span></span><span class="chev" aria-hidden="true">›</span></button>
+        <button class="mc" id="local"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="mc-txt"><strong>2 jogadores</strong><span class="d">No mesmo aparelho</span></span><span class="chev" aria-hidden="true">›</span></button>
       </div>
       <button class="lk" id="show-join">Tenho um código de sala</button>
     </div>
@@ -44,14 +68,15 @@
     </form>
   </section>
   <section id="game" class="hide">
-    <div class="nav-row"><button class="sec back-menu">← Sair</button><span id="mode"></span><button class="sec sound" aria-label="Alternar som" id="sound">🔊</button></div>
+    <div class="nav-row"><button class="sec back-menu">← Sair</button><span id="mode"></span><button class="sec theme-toggle" type="button" aria-label="Alternar tema">🌓</button><button class="sec sound" aria-label="Alternar som" id="sound">🔊</button></div>
     <div id="score" class="score"></div>
     <p id="message" role="status"></p>
     <div id="board" aria-label="Tabuleiro" role="group"></div>
     <div id="promotion" class="hide" role="group" aria-label="Promoção do peão"></div>
     <button class="full sec hide" id="again">Revanche</button>
   </section>
-  <footer>Developed by Max</footer>
+  <footer>Developed by Max :)</footer>
 </main>
 <script type="module" src="../tabuleiro/ui.mjs"></script>
+</body>
 </html>
