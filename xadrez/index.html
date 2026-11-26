@@ -50,22 +50,27 @@ try{var t=localStorage.getItem('prisma_theme');if(t)document.documentElement.dat
     <button id="start-ai" class="full">Jogar</button>
   </section>
   <section id="lobby" class="hide card">
-    <button class="ghost back-menu">← Voltar</button>
+    <div class="nav-row">
+      <button class="ghost back-menu" id="lobby-back">← Voltar</button>
+      <span class="badge hide" id="room-badge"><span class="pulse" aria-hidden="true"></span><span id="lobby-status">Sala pronta</span></span>
+    </div>
     <h1 id="lobby-title" class="setup-title">Partida Online</h1>
     <div id="online-setup">
       <label class="fld" for="player-name">Seu nome</label><input id="player-name" maxlength="14" placeholder="Ex: Max">
       <button class="full" id="create">Criar sala</button>
     </div>
     <div id="invite" class="hide">
-      <span class="badge"><span class="pulse"></span><span id="lobby-status">Sala pronta</span></span><h2 class="center">Aguardando amigo</h2>
-      <p class="sub" id="lobby-info"></p><button class="room full sec" id="copy-code" aria-label="Copiar código da sala"></button>
-      <div class="stack"><button class="wa" id="share-link">Enviar no WhatsApp</button><button class="sec" id="copy-link">Copiar link</button></div><p class="hint">Mantenha esta tela aberta até seu amigo entrar.</p>
+      <p class="sub" id="lobby-info"></p>
+      <button class="room" id="copy-code" aria-label="Copiar código da sala"><strong id="room-code"></strong><small>Toque para copiar o código</small></button>
+      <div class="stack"><button class="wa" id="share-link">Enviar no WhatsApp</button><button class="sec" id="copy-link">Copiar link</button></div>
+      <p class="hint">Mantenha esta tela aberta até seu amigo entrar.</p>
     </div>
     <form id="join" class="hide">
       <label class="fld" for="code">Código da sala</label><input id="code" placeholder="xadrez-xxxxxxxx" autocomplete="off">
       <label class="fld" for="join-name">Seu nome</label><input id="join-name" maxlength="14" placeholder="Como quer ser chamado(a)?">
-      <button class="full" id="join-button">Entrar</button><p id="lobby-status-join" role="status"></p>
+      <button class="full" id="join-button">Entrar</button>
     </form>
+    <p id="lobby-status-join" class="hint" role="status"></p>
   </section>
   <section id="game" class="hide">
     <div class="nav-row"><button class="sec back-menu">← Sair</button><span id="mode"></span><button class="sec theme-toggle" type="button" aria-label="Alternar tema">🌓</button><button class="sec sound" aria-label="Alternar som" id="sound">🔊</button></div>

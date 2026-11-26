@@ -206,13 +206,21 @@ function wire(connection, side) {
   });
 }
 
+function waitingRoom(waiting) {
+  $('lobby').classList.toggle('waiting',waiting);
+  $('room-badge').classList.toggle('hide',!waiting);
+  $('invite').classList.toggle('hide',!waiting);
+  $('lobby-title').textContent = waiting ? 'Aguardando amigo' : $('join').classList.contains('hide') ? 'Partida Online' : 'Entrar na sala';
+  $('lobby-back').textContent = waiting ? '← Cancelar' : '← Voltar';
+}
+
 function lobby(join) {
   show('lobby');
   $('online-setup').classList.toggle('hide',join);
   $('create').disabled = false;
   $('join').classList.toggle('hide',!join);
   $('join-button').disabled = false;
-  $('invite').classList.add('hide');
+  waitingRoom(false);
   status(''); $('lobby-status').textContent='Sala pronta';
   if (join) $('code').focus();
 }
@@ -224,7 +232,7 @@ function connect(host) {
   else room = $('code').value.trim().toLowerCase();
   if (!new RegExp('^'+family+'-[a-z0-9]{8}$').test(room)) { status('Confira o código da sala.'); return; }
   $('join-button').disabled = $('create').disabled = true;
-  $('invite').classList.add('hide');
+  waitingRoom(false);
   status('Conectando...');
   const config = {debug:0};
   const current = peer = host ? new Peer(room,config) : new Peer(config);
@@ -232,7 +240,8 @@ function connect(host) {
     if (peer !== current) return;
     cleanup();
     $('join-button').disabled = $('create').disabled = false;
-    $('invite').classList.add('hide');
+    waitingRoom(false);
+    $('online-setup').classList.toggle('hide',!host);
     status(text);
   };
   pending = setTimeout(() => fail('Tempo esgotado. Tente novamente.'),15000);
@@ -240,10 +249,11 @@ function connect(host) {
     if (peer !== current) return;
     if (!host) { wire(current.connect(room,{reliable:true}),-1); return; }
     clearTimeout(pending);
-    $('invite').classList.remove('hide');
+    waitingRoom(true);
+    status('');
     $('online-setup').classList.add('hide');
     $('lobby-info').textContent = $('player-name').value.trim() || 'Jogador 1';
-    $('copy-code').textContent = room;
+    $('room-code').textContent = room;
     $('lobby-status').textContent = 'Sala pronta';
   });
   current.on('connection',connection => {

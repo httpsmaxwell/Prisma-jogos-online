@@ -42,11 +42,11 @@ label.fld{display:flex;align-items:center;gap:6px;font-size:.8rem;font-weight:60
 .seg button.active{border-color:var(--p1);background:var(--card);color:var(--p1)}
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:400px){.r2{grid-template-columns:1fr}}
-.room{margin:16px 0;padding:16px;border-radius:14px;background:var(--bg);border:1px dashed var(--line);text-align:center;cursor:pointer}
+button.room{display:flex;flex-direction:column;gap:0;width:100%;color:var(--fg);margin:16px 0;padding:16px;border-radius:14px;background:var(--bg);border:1px dashed var(--line);text-align:center;cursor:pointer}
 .room:hover{border-color:var(--p1)}
-.room strong{display:block;font-size:1.2rem;letter-spacing:.05em;font-family:ui-monospace,monospace;word-break:break-all}
+.room strong{display:block;font-size:1.3rem;letter-spacing:.07em;font-family:ui-monospace,monospace;word-break:break-all}
 footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:18px}
-#message,#lobby-status{color:var(--muted);text-align:center;margin:14px 0;min-height:1.4em}
+#message{color:var(--muted);text-align:center;margin:14px 0;min-height:1.4em}
 #mode{color:var(--muted);font-size:.85rem}
 #board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border:1px solid var(--line);border-radius:14px;overflow:hidden;touch-action:manipulation}
 #board button{aspect-ratio:1;min-height:0;min-width:0;border-radius:0;padding:0;background:#f0dfbd;color:#211d17;position:relative;font-size:clamp(1.2rem,7.7vw,2.55rem)}
@@ -73,3 +73,13 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:18px}
 .nav-row .theme-toggle{margin:0}
 #board button.last{box-shadow:inset 0 0 0 3px #f59e0b}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.setup-title{text-align:left;margin-bottom:16px}
+#lobby.waiting .setup-title{text-align:center;margin-bottom:0}
+#lobby-info{margin:4px 0 0}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:.8rem;font-weight:600;color:var(--muted)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.room small{display:block;color:var(--muted);font-size:.76rem;font-weight:400;margin-top:4px}
+.stack{display:grid;gap:9px;margin-top:14px}
+.hint{margin:14px 0 0;text-align:center;color:var(--muted);font-size:.8rem;line-height:1.4;overflow-wrap:anywhere}
+#lobby-status-join:empty{display:none}
