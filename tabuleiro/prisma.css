@@ -89,3 +89,12 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:18px}
 #setup .r2:has(#second-player.hide){grid-template-columns:1fr}
 #score>span:not(:nth-child(2)){padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);overflow-wrap:anywhere}
 #game .nav-row{flex-wrap:wrap}
+
+#score{grid-template-columns:1fr 1fr;gap:10px;margin:0 0 10px}
+#score>span:nth-child(2){display:none}
+#score>span:not(:nth-child(2)){display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;transition:border-color .15s}
+#score>span.active{border-color:var(--p1);box-shadow:inset 0 0 0 1px var(--p1)}
+#score strong{font-size:1.4rem}
+#message.result{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--fg);font-weight:600}
+.end{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.end button{flex:1;min-width:140px}

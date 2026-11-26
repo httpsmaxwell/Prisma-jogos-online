@@ -84,8 +84,11 @@ function render() {
     : finished !== null ? (mode === 'local' ? label(finished)+' venceram!' : finished === own ? 'Você venceu! 🎉' : 'Você perdeu.')
     : path.length ? 'Continue a captura.'
     : (mode !== 'local' && rules.turn() === own ? 'Sua vez' : 'Vez das '+label(rules.turn()).toLowerCase())+(rules.check?.() ? ' · Xeque!' : '.');
+  renderScore();
+  $('end-bar').classList.toggle('hide',finished === null && !lost);
+  $('message').classList.toggle('result',finished !== null || lost);
   $('again').classList.toggle('hide',finished === null || lost);
-  $('again').textContent = mode === 'online' ? (wantMine ? 'Aguardando adversário...' : 'Pedir revanche') : 'Revanche';
+  $('again').textContent = mode === 'online' ? (wantMine ? 'Aguardando adversário...' : 'Pedir revanche') : 'Jogar novamente';
   $('again').disabled = wantMine;
 }
 
@@ -133,6 +136,10 @@ function renderScore() {
   $('score').innerHTML = `<span>Você <strong>${mode === 'online' && own === -1 ? score[1] : score[0]}</strong></span><span>×</span><span>Adversário <strong>${mode === 'online' && own === -1 ? score[0] : score[1]}</strong></span>`;
   const labels = $('score').querySelectorAll('span');
   labels[0].firstChild.textContent = (mode === 'online' ? 'Você' : $('local-name').value.trim() || label(1))+' ';
+  const firstSide = mode === 'online' ? own : 1;
+  labels[0].classList.toggle('active',finished === null && !lost && rules.turn() === firstSide);
+  labels[2].classList.toggle('active',finished === null && !lost && rules.turn() !== firstSide);
+  labels[0].setAttribute('aria-label',label(firstSide)+': '+labels[0].textContent+' vitórias');
   labels[2].firstChild.textContent = (mode === 'local' ? $('second-name').value.trim() || label(-1) : mode === 'ai' ? 'Computador' : 'Adversário')+' ';
 }
 
@@ -289,7 +296,7 @@ function configure(next) {
 $('local').onclick = () => configure('local');
 $('computer').onclick = () => configure('ai');
 $('start-ai').onclick = () => start(setupMode);
-function rematch() { roundActive = true; start('online',-own); }
+function rematch() { roundActive = true; score.reverse(); start('online',-own); }
 $('again').onclick = () => {
   if (mode !== 'online') { roundActive = true; start(mode); return; }
   if (!conn?.open) return disconnected();
